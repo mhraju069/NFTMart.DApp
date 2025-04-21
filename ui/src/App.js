@@ -1,10 +1,42 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import particles from './components/particles';
 import Nfts from './components/nfts';
 import Category from './components/category';
+import Home from './components/home';
 import './App.css';
-
+import { ethers } from 'ethers';
+import ABI from './components/ABI.json'
+const contractAddress = '0xA973f1AEbAbce47fD6432a3BEEb7813fD6074Ee4'
 function App() {
+  const [wallet, setWallet] = useState()
+  const [contract, setContract] = useState()
+
+  const init = async () => {
+    if (!window.ethereum) {
+      alert("Please install metamask")
+      return
+    }
+    try {
+
+      const abi = ABI.abi
+
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const accounts = await provider.send('eth_requestAccounts', [])
+      const contracts = new ethers.Contract(contractAddress, abi, signer)
+
+      setWallet(accounts[0])
+      setContract(contracts)
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
+
+
+
+
+
   useEffect(() => {
     particles()
   })
@@ -35,7 +67,7 @@ function App() {
           </nav>
 
           <div class="header-actions">
-            <button class="connect-wallet">Connect Wallet</button>
+            <button type='button' onClick={init} class="connect-wallet"> {wallet?"Connected":"Connect Wallet"}</button>
             <div class="user-profile">
               <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User Profile" />
             </div>
@@ -44,34 +76,7 @@ function App() {
       </header>
 
 
-      <section class="hero">
-        <div class="container">
-          <div class="hero-content">
-            <h1>Discover, Collect & Sell Extraordinary NFTs</h1>
-            <p>Explore the world's first and largest NFT marketplace with over 10,000+ digital assets. Join our community of creators and collectors.</p>
-
-            <div class="hero-buttons">
-              <a href="/" class="btn btn-primary">Explore Now</a>
-              <a href="/" class="btn btn-secondary">Create NFT</a>
-            </div>
-
-            <div class="stats">
-              <div class="stat-item">
-                <div class="stat-value">10K+</div>
-                <div class="stat-label">Digital Assets</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-value">5K+</div>
-                <div class="stat-label">Artists</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-value">100K+</div>
-                <div class="stat-label">Transactions</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Home />
 
       <Nfts />
 
