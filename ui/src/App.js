@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import particles from './components/particles';
+import Particles from './components/particles';
 import Nfts from './components/nfts';
 import Category from './components/category';
 import Home from './components/home';
+import AddNft from './components/addNft';
 import './App.css';
 import { ethers } from 'ethers';
 import ABI from './components/ABI.json'
@@ -10,6 +11,11 @@ const contractAddress = '0xA973f1AEbAbce47fD6432a3BEEb7813fD6074Ee4'
 function App() {
   const [wallet, setWallet] = useState()
   const [contract, setContract] = useState()
+  const [create,setCreate] = useState(false)
+  const [home,setHome] = useState(true)
+  const [nfts,setNfts] = useState(true)
+  const [category,setCategory] = useState(true)
+
 
   const init = async () => {
     if (!window.ethereum) {
@@ -32,43 +38,48 @@ function App() {
     }
   }
 
+  const homeView=()=> {
+    if (!home){ setHome(true); setCreate(false);setNfts(true) ;setCategory(true)}
+  }
+  const createView=()=> {
+    if (!create){ setCreate(true); setHome(false) ;setNfts(false);setCategory(false)}
+  }
+  const categoryView=()=> {
+    if (!category){ setHome(true); setCreate(false);setNfts(true);setCategory(true)}
+  }
 
 
 
 
 
-  useEffect(() => {
-    particles()
-  })
+
+  // useEffect(() => {
+  //   particles()
+  // })
 
   return (
-    <body>
-      <div id="particles-js"></div>
-
-
-      <div class="floating-element floating-element-1"></div>
-      <div class="floating-element floating-element-2"></div>
-      <div class="floating-element floating-element-3"></div>
+    <>
+      <Particles />
 
       <header>
-        <div class="container header-container">
-          <a href="/" class="logo">
-            <i class="fas fa-atom logo-icon"></i>
+        <div className="container header-container">
+          <a href="/" className="logo">
+            <i className="fas fa-atom logo-icon"></i>
             <span>NexusNFT</span>
           </a>
 
           <nav>
             <ul>
-              <li><a href="/">Explore</a></li>
-              <li><a href="/">Create</a></li>
-              <li><a href="/">Community</a></li>
-              <li><a href="/">Resources</a></li>
+              <li><button type='button' onClick={homeView}>Explore</button></li>
+              <li><button type='button' onClick={createView} >Create</button></li>
+              <li><button type='button' >Community</button></li>
+              <li><button type='button' >Resources</button></li>
             </ul>
           </nav>
 
-          <div class="header-actions">
-            <button type='button' onClick={init} class="connect-wallet"> {wallet?"Connected":"Connect Wallet"}</button>
-            <div class="user-profile">
+          <div className="header-actions">
+            <button type='button' onClick={init} className="connect-wallet"> {wallet?"Connected":"Connect Wallet"}</button>
+            <div className="user-profile">
               <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User Profile" />
             </div>
           </div>
@@ -76,145 +87,147 @@ function App() {
       </header>
 
 
-      <Home />
+      {home && <Home />}
 
-      <Nfts />
+      { create && <AddNft />}
 
-      <Category />
+      {nfts && <Nfts />}
+
+      {category && <Category />}
 
 
-      <section class="how-it-works">
-        <div class="container">
-          <div class="section-header">
-            <h2 class="section-title">How It Works</h2>
+      <section className="how-it-works">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">How It Works</h2>
           </div>
 
-          <div class="steps">
-            <div class="step">
-              <div class="step-number">1</div>
-              <h3 class="step-title">Set Up Your Wallet</h3>
-              <p class="step-description">Connect your preferred crypto wallet to our platform. We support MetaMask, WalletConnect, and more.</p>
+          <div className="steps">
+            <div className="step">
+              <div className="step-number">1</div>
+              <h3 className="step-title">Set Up Your Wallet</h3>
+              <p className="step-description">Connect your preferred crypto wallet to our platform. We support MetaMask, WalletConnect, and more.</p>
             </div>
 
-            <div class="step">
-              <div class="step-number">2</div>
-              <h3 class="step-title">Create Your Collection</h3>
-              <p class="step-description">Upload your work, add a title and description, and customize your NFTs with properties and unlockable content.</p>
+            <div className="step">
+              <div className="step-number">2</div>
+              <h3 className="step-title">Create Your Collection</h3>
+              <p className="step-description">Upload your work, add a title and description, and customize your NFTs with properties and unlockable content.</p>
             </div>
 
-            <div class="step">
-              <div class="step-number">3</div>
-              <h3 class="step-title">List Them For Sale</h3>
-              <p class="step-description">Choose between auctions, fixed-price listings, and declining-price listings to sell your NFTs.</p>
+            <div className="step">
+              <div className="step-number">3</div>
+              <h3 className="step-title">List Them For Sale</h3>
+              <p className="step-description">Choose between auctions, fixed-price listings, and declining-price listings to sell your NFTs.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="trending-collections">
-        <div class="container">
-          <div class="section-header">
-            <h2 class="section-title">Trending Collections</h2>
-            <a href="/" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+      <section className="trending-collections">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Trending Collections</h2>
+            <a href="/" className="view-all">View All <i className="fas fa-arrow-right"></i></a>
           </div>
 
-          <div class="nft-grid">
-            <div class="collection-card">
-              <div class="collection-header">
-                <div class="collection-avatar">
+          <div className="nft-grid">
+            <div className="collection-card">
+              <div className="collection-header">
+                <div className="collection-avatar">
                   <img src="https://source.unsplash.com/random/300x300/?ape" alt="Collection Avatar" />
                 </div>
-                <div class="collection-info">
-                  <h3 class="collection-name">Bored Ape Yacht Club</h3>
-                  <div class="collection-creator">
-                    <div class="creator-avatar-sm">
+                <div className="collection-info">
+                  <h3 className="collection-name">Bored Ape Yacht Club</h3>
+                  <div className="collection-creator">
+                    <div className="creator-avatar-sm">
                       <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="Creator" />
                     </div>
                     <span>@yugalabs</span>
                   </div>
-                  <div class="collection-stats">
-                    <div class="stat">
-                      <div class="stat-value">12.4K</div>
-                      <div class="stat-label">Items</div>
+                  <div className="collection-stats">
+                    <div className="stat">
+                      <div className="stat-value">12.4K</div>
+                      <div className="stat-label">Items</div>
                     </div>
-                    <div class="stat">
-                      <div class="stat-value">4.2K</div>
-                      <div class="stat-label">Owners</div>
+                    <div className="stat">
+                      <div className="stat-value">4.2K</div>
+                      <div className="stat-label">Owners</div>
                     </div>
-                    <div class="stat">
-                      <div class="stat-value">12.5K</div>
-                      <div class="stat-label">ETH</div>
+                    <div className="stat">
+                      <div className="stat-value">12.5K</div>
+                      <div className="stat-label">ETH</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="collection-items">
-                <div class="collection-item">
+              <div className="collection-items">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?ape,1" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?ape,2" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?ape,3" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?ape,4" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?ape,5" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?ape,6" alt="NFT" />
                 </div>
               </div>
             </div>
-            <div class="collection-card">
-              <div class="collection-header">
-                <div class="collection-avatar">
+            <div className="collection-card">
+              <div className="collection-header">
+                <div className="collection-avatar">
                   <img src="https://source.unsplash.com/random/300x300/?punk" alt="Collection Avatar" />
                 </div>
-                <div class="collection-info">
-                  <h3 class="collection-name">CryptoPunks</h3>
-                  <div class="collection-creator">
-                    <div class="creator-avatar-sm">
+                <div className="collection-info">
+                  <h3 className="collection-name">CryptoPunks</h3>
+                  <div className="collection-creator">
+                    <div className="creator-avatar-sm">
                       <img src="https://randomuser.me/api/portraits/women/33.jpg" alt="Creator" />
                     </div>
                     <span>@larvalabs</span>
                   </div>
-                  <div class="collection-stats">
-                    <div class="stat">
-                      <div class="stat-value">10K</div>
-                      <div class="stat-label">Items</div>
+                  <div className="collection-stats">
+                    <div className="stat">
+                      <div className="stat-value">10K</div>
+                      <div className="stat-label">Items</div>
                     </div>
-                    <div class="stat">
-                      <div class="stat-value">3.5K</div>
-                      <div class="stat-label">Owners</div>
+                    <div className="stat">
+                      <div className="stat-value">3.5K</div>
+                      <div className="stat-label">Owners</div>
                     </div>
-                    <div class="stat">
-                      <div class="stat-value">8.7K</div>
-                      <div class="stat-label">ETH</div>
+                    <div className="stat">
+                      <div className="stat-value">8.7K</div>
+                      <div className="stat-label">ETH</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="collection-items">
-                <div class="collection-item">
+              <div className="collection-items">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?punk,1" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?punk,2" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?punk,3" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?punk,4" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?punk,5" alt="NFT" />
                 </div>
-                <div class="collection-item">
+                <div className="collection-item">
                   <img src="https://source.unsplash.com/random/300x300/?punk,6" alt="NFT" />
                 </div>
               </div>
@@ -222,15 +235,15 @@ function App() {
           </div>
         </div>
       </section>
-      <section class="newsletter">
-        <div class="container">
-          <div class="newsletter-content">
+      <section className="newsletter">
+        <div className="container">
+          <div className="newsletter-content">
             <h2>Stay Updated</h2>
             <p>Subscribe to our newsletter to get the latest updates on new drops, featured artists, and exclusive offers.</p>
 
-            <form class="newsletter-form">
-              <input type="email" class="newsletter-input" placeholder="Enter your email address" />
-              <button type="submit" class="newsletter-btn">Subscribe</button>
+            <form className="newsletter-form">
+              <input type="email" className="newsletter-input" placeholder="Enter your email address" />
+              <button type="submit" className="newsletter-btn">Subscribe</button>
             </form>
           </div>
         </div>
@@ -238,25 +251,25 @@ function App() {
 
 
       <footer>
-        <div class="container">
-          <div class="footer-content">
-            <div class="footer-col">
-              <div class="footer-logo">
-                <i class="fas fa-atom footer-logo-icon"></i>
+        <div className="container">
+          <div className="footer-content">
+            <div className="footer-col">
+              <div className="footer-logo">
+                <i className="fas fa-atom footer-logo-icon"></i>
                 <span>NexusNFT</span>
               </div>
-              <p class="footer-description">The world's first and largest digital marketplace for crypto collectibles and non-fungible tokens.</p>
-              <div class="social-links">
-                <a href="/" class="social-link"><i class="fab fa-twitter"></i></a>
-                <a href="/" class="social-link"><i class="fab fa-discord"></i></a>
-                <a href="/" class="social-link"><i class="fab fa-instagram"></i></a>
-                <a href="/" class="social-link"><i class="fab fa-telegram"></i></a>
+              <p className="footer-description">The world's first and largest digital marketplace for crypto collectibles and non-fungible tokens.</p>
+              <div className="social-links">
+                <a href="/" className="social-link"><i className="fab fa-twitter"></i></a>
+                <a href="/" className="social-link"><i className="fab fa-discord"></i></a>
+                <a href="/" className="social-link"><i className="fab fa-instagram"></i></a>
+                <a href="/" className="social-link"><i className="fab fa-telegram"></i></a>
               </div>
             </div>
 
-            <div class="footer-col">
-              <h3 class="footer-title">Marketplace</h3>
-              <ul class="footer-links">
+            <div className="footer-col">
+              <h3 className="footer-title">Marketplace</h3>
+              <ul className="footer-links">
                 <li><a href="/">All NFTs</a></li>
                 <li><a href="/">Art</a></li>
                 <li><a href="/">Music</a></li>
@@ -266,9 +279,9 @@ function App() {
               </ul>
             </div>
 
-            <div class="footer-col">
-              <h3 class="footer-title">My Account</h3>
-              <ul class="footer-links">
+            <div className="footer-col">
+              <h3 className="footer-title">My Account</h3>
+              <ul className="footer-links">
                 <li><a href="/">Profile</a></li>
                 <li><a href="/">Favorites</a></li>
                 <li><a href="/">Watchlist</a></li>
@@ -278,9 +291,9 @@ function App() {
               </ul>
             </div>
 
-            <div class="footer-col">
-              <h3 class="footer-title">Resources</h3>
-              <ul class="footer-links">
+            <div className="footer-col">
+              <h3 className="footer-title">Resources</h3>
+              <ul className="footer-links">
                 <li><a href="/">Help Center</a></li>
                 <li><a href="/">Platform Status</a></li>
                 <li><a href="/">Partners</a></li>
@@ -291,12 +304,12 @@ function App() {
             </div>
           </div>
 
-          <div class="footer-bottom">
+          <div className="footer-bottom">
             <p>&copy; 2023 NexusNFT. All rights reserved.</p>
           </div>
         </div>
       </footer>
-    </body>
+    </>
   );
 }
 
