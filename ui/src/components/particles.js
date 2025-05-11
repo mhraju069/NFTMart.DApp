@@ -107,7 +107,7 @@ export default function Particles() {
       },
       "retina_detect": true
     });
-  })
+  },[])
 
   return (
     <>

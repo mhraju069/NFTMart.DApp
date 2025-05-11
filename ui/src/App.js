@@ -9,8 +9,8 @@ import { ethers } from 'ethers';
 import ABI from './components/ABI.json'
 const contractAddress = '0xA973f1AEbAbce47fD6432a3BEEb7813fD6074Ee4'
 function App() {
-  const [wallet, setWallet] = useState()
-  const [contract, setContract] = useState()
+  const [wallet, setWallet] = useState('')
+  const [contract, setContract] = useState('')
   const [create,setCreate] = useState(false)
   const [home,setHome] = useState(true)
   const [nfts,setNfts] = useState(true)

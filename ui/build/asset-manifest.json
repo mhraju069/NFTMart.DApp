@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/NFTMart.DApp/static/css/main.6320b92d.css",
+    "main.js": "/NFTMart.DApp/static/js/main.1cd1ff05.js",
+    "static/js/453.63c4db86.chunk.js": "/NFTMart.DApp/static/js/453.63c4db86.chunk.js",
+    "index.html": "/NFTMart.DApp/index.html",
+    "main.6320b92d.css.map": "/NFTMart.DApp/static/css/main.6320b92d.css.map",
+    "main.1cd1ff05.js.map": "/NFTMart.DApp/static/js/main.1cd1ff05.js.map",
+    "453.63c4db86.chunk.js.map": "/NFTMart.DApp/static/js/453.63c4db86.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6320b92d.css",
+    "static/js/main.1cd1ff05.js"
+  ]
+}

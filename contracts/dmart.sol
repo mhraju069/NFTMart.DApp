@@ -1,54 +1,158 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract DMart {
-    struct Product {
-        uint256 id;
+
+
+
+
+contract MyNFT is
+    Initializable,
+    ERC721URIStorageUpgradeable,
+    OwnableUpgradeable,
+    UUPSUpgradeable
+{
+    uint256 public tokenId;
+
+    function MintNFT(address user, string memory URI) public onlyOwner {
+        _safeMint(user, tokenId);
+        _setTokenURI(tokenId, URI);
+        tokenId++;
+    }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        override
+        onlyOwner
+    {}
+}
+
+
+
+
+
+contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
+    MyNFT myNft;
+    enum Category {ART,IMAGE,PHOTOGRAPHY,VIDEO,GAMES,OTHERS}
+    struct NFT {
         string name;
         uint256 price;
         string image;
+        string details;
+        Category category;
         address owner;
+        bool isSold;
+        uint256 tokenId;
     }
-    address public admin = msg.sender;
-    Product[] public products;
-    mapping (uint => bool) isSold;
+    NFT[] public nftList;
+    mapping(address => uint256) public myNftCount;
 
-    modifier Admin() {
-        require(
-            admin == msg.sender,
-            "Only admin have permission to do this action"
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        override
+        onlyOwner
+    {}
+
+    function SetNftAddress(address _address) public onlyOwner {
+        myNft = MyNFT(_address);
+    }
+
+    function addItems(
+        string memory name,
+        uint256 price,
+        string memory image_url,
+        string memory details,
+        Category category
+    ) public virtual {
+        uint tokenId = myNft.tokenId();
+        nftList.push(
+            NFT(
+                name,
+                price,
+                image_url,
+                details,
+                category,
+                msg.sender,
+                false,
+                tokenId
+            )
         );
-        _;
+        myNft.MintNFT(msg.sender, image_url);
+        myNftCount[msg.sender]++;
     }
 
-    function addItems(string memory name,uint256 price,string memory image) public {
-        uint id = productsLength();
-        products.push( Product(id, name, price, image, msg.sender));
-        isSold[id]=false;
+    function nftListLength() public view returns (uint256) {
+        return nftList.length;
     }
 
-    function productsLength() public view returns (uint256) {
-        return products.length;
+    function deleteItem(uint256 id) public virtual {
+        require(nftList[id].owner == msg.sender, "You dont have permission");
+        uint256 len = nftListLength();
+        nftList[id] = nftList[len - 1];
+        nftList.pop();
     }
 
-    function deleteItem(uint256 id) public {
-        require(products[id].owner == msg.sender, "You dont have permission");
-        products[id] = products[productsLength() - 1];
-        products.pop();
+    function buyItem(uint256 id) public payable virtual {
+        NFT storage item = nftList[id];
+        require(msg.value == item.price, "invald price");
+        require(msg.sender != item.owner, "You already own this item");
+        require(item.isSold == false, "Item is already sold");
+
+        address payable exOwner = payable(item.owner);
+        exOwner.transfer((msg.value * 98) / 100);
+        myNft.transferFrom(item.owner, msg.sender, item.tokenId);
+        item.owner = msg.sender;
+        item.isSold = true;
     }
 
-    function buyItem(uint id) public payable {
-        Product storage item = products[id];
-
-        require(msg.value == item.price ,'invald price');
-        require(msg.sender != item.owner,"You already own this item");
-        require(isSold[item.id]==false,"Item is already sold");
-
-        address payable exOwner = payable(item.owner) ;
-        exOwner.transfer(msg.value * 98/100);
-        payable (admin).transfer(msg.value * 2/100);
-        item.owner = msg.sender; 
-        isSold[item.id] = true;
+    function MyList() public view virtual returns (NFT[] memory) {
+        NFT[] memory myList = new NFT[](myNftCount[msg.sender]);
+        uint256 count;
+        for (uint256 i; i < nftListLength(); i++) {
+            if (nftList[i].owner == msg.sender) {
+                myList[count] = nftList[i];
+                count++;
+            }
+        }
+        return myList;
     }
+
+ function MyListByCategry(Category category)
+    public
+    view
+    returns (NFT[] memory)
+{
+    uint256 matchCount;
+
+    // First pass: count matching NFTs
+    for (uint256 i = 0; i < nftList.length; i++) {
+        if (
+            nftList[i].owner == msg.sender &&
+            nftList[i].category == category
+        ) {
+            matchCount++;
+        }
+    }
+
+    // Allocate memory for results
+    NFT[] memory myList = new NFT[](matchCount);
+    uint256 index = 0;
+
+    // Second pass: collect matching NFTs
+    for (uint256 i = 0; i < nftList.length; i++) {
+        if (
+            nftList[i].owner == msg.sender &&
+           nftList[i].category == category
+        ) {
+            myList[index] = nftList[i];
+            index++;
+        }
+    }
+
+    return myList;
+}
 
 }
