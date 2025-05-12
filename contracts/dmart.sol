@@ -5,10 +5,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URISto
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-
-
-
-
 contract MyNFT is
     Initializable,
     ERC721URIStorageUpgradeable,
@@ -23,20 +19,21 @@ contract MyNFT is
         tokenId++;
     }
 
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        override
-        onlyOwner
-    {}
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 }
-
-
-
-
 
 contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     MyNFT myNft;
-    enum Category {ART,IMAGE,PHOTOGRAPHY,VIDEO,GAMES,OTHERS}
+    enum Category {
+        ART,
+        IMAGE,
+        PHOTOGRAPHY,
+        VIDEO,
+        GAMES,
+        OTHERS
+    }
     struct NFT {
         string name;
         uint256 price;
@@ -50,17 +47,15 @@ contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     NFT[] public nftList;
     mapping(address => uint256) public myNftCount;
 
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        override
-        onlyOwner
-    {}
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 
     function SetNftAddress(address _address) public onlyOwner {
         myNft = MyNFT(_address);
     }
 
-    function addItems(
+    function AddItems(
         string memory name,
         uint256 price,
         string memory image_url,
@@ -108,51 +103,76 @@ contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         item.isSold = true;
     }
 
-    function MyList() public view virtual returns (NFT[] memory) {
-        NFT[] memory myList = new NFT[](myNftCount[msg.sender]);
+    function NftList() public view virtual returns (NFT[] memory) {
+        NFT[] memory list = new NFT[](myNftCount[msg.sender]);
         uint256 count;
         for (uint256 i; i < nftListLength(); i++) {
-            if (nftList[i].owner == msg.sender) {
-                myList[count] = nftList[i];
+            if (nftList[i].isSold == false) {
+                list[count] = nftList[i];
                 count++;
             }
         }
-        return myList;
+        return list;
     }
 
- function MyListByCategry(Category category)
-    public
-    view
-    returns (NFT[] memory)
-{
-    uint256 matchCount;
+    function NftListByCategry(
+        Category category
+    ) public view returns (NFT[] memory) {
+        uint256 matchCount;
 
-    // First pass: count matching NFTs
-    for (uint256 i = 0; i < nftList.length; i++) {
-        if (
-            nftList[i].owner == msg.sender &&
-            nftList[i].category == category
-        ) {
-            matchCount++;
+        // First pass: count matching NFTs
+        for (uint256 i = 0; i < nftList.length; i++) {
+            if (nftList[i].category == category && nftList[i].isSold == false) {
+                matchCount++;
+            }
         }
-    }
+        // Allocate memory for results
+        NFT[] memory list = new NFT[](matchCount);
+        uint256 index = 0;
 
-    // Allocate memory for results
-    NFT[] memory myList = new NFT[](matchCount);
-    uint256 index = 0;
-
-    // Second pass: collect matching NFTs
-    for (uint256 i = 0; i < nftList.length; i++) {
-        if (
-            nftList[i].owner == msg.sender &&
-           nftList[i].category == category
-        ) {
-            myList[index] = nftList[i];
-            index++;
+        // Second pass: collect matching NFTs
+        for (uint256 i = 0; i < nftList.length; i++) {
+            if (nftList[i].category == category && nftList[i].isSold == false) {
+                list[index] = nftList[i];
+                index++;
+            }
         }
+
+        return list;
     }
 
-    return myList;
-}
+    function MyNfts() public view returns (NFT[] memory,NFT[] memory) {
+        uint256 nftCount;
+        uint256 purchesCount;
 
+        // First pass: count matching NFTs
+        for (uint256 i = 0; i < nftList.length; i++) {
+            if (nftList[i].owner == msg.sender) {
+                nftCount++;
+                if (nftList[i].isSold == false) {
+                    purchesCount++;
+                }
+            }
+        }
+        // Allocate memory for results
+        NFT[] memory sellList = new NFT[](nftCount);
+        NFT[] memory Buylist = new NFT[](purchesCount);
+        uint256 x = 0;
+        uint256 y = 0;
+
+        // Second pass: collect matching NFTs
+        for (uint256 i = 0; i < nftList.length; i++) {
+            if (nftList[i].owner == msg.sender) {
+                sellList[x] = nftList[i];
+                x++;
+            }
+        }
+        for (uint256 i = 0; i < nftList.length; i++) {
+            if (nftList[i].owner == msg.sender && nftList[i].isSold == true) {
+                Buylist[y] = nftList[i];
+                y++;
+            }
+        }
+        return (sellList, Buylist);
+    }
 }
