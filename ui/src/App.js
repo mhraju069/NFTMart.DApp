@@ -4,7 +4,7 @@ import Home from './components/home';
 import AddNft from './components/addNft';
 import Categorywise from './components/categorywise';
 import './App.css';
-import { BrowserProvider, Contract } from 'ethers';
+import { BrowserProvider, JsonRpcProvider, Contract } from 'ethers';
 import ABI from './components/ABI.json'
 const contractAddress = '0xA973f1AEbAbce47fD6432a3BEEb7813fD6074Ee4'
 function App() {
@@ -14,31 +14,33 @@ function App() {
   const [homeview, setHomeview] = useState(true)
   const [exploreview, setExploreview] = useState(false)
   const [addrs, setAddrs] = useState()
-  const [signer, setSigner] = useState()
 
   useEffect(() => {
-    const init = async () => {
+    const fetchdata = async () => {
       if (!window.ethereum) {
         alert("Please install metamask")
         return
       }
       try {
-        const provider = new BrowserProvider(window.ethereum)
+        const provider = new JsonRpcProvider("https://eth-sepolia.g.alchemy.com/v2/TmhREneR_zfjyZ4i88_rUGBMztgR9UP0")
         const signer = await provider.getSigner()
         const contracts = new Contract(contractAddress, ABI.abi, signer)
-        setSigner(signer)
         setContract(contracts)
       } catch (err) {
         console.log(err.message)
       }
     }
-    init()
+    fetchdata()
   }, [])
 
 
   const Connect = async () => {
     try {
+      const provider = new BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const contracts = new Contract(contractAddress, ABI.abi, signer)
       const accounts = await signer.getAddress()
+      setContract(contracts)
       setWallet(accounts)
       setAddrs(accounts.toString().slice(0, 6) + '....' + accounts.toString().slice(-5))
     } catch (err) {

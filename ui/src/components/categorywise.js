@@ -36,9 +36,9 @@ export default function Categorywise({ contract, Wallet }) {
         }
     };
 
-    const BuyItem = async (id) => {
+    const BuyItem = async (id,price) => {
         try {
-            const buy = await contract.BuyItem(id);
+            const buy = await contract.BuyItem(id,{value:price});
             await buy.wait();
         } catch (e) {
             console.log(e);
@@ -120,16 +120,16 @@ export default function Categorywise({ contract, Wallet }) {
                         {nfts.map((item, i) => (
                             <div className="nft-card" key={i}>
                                 <div className="nft-image">
-                                    <img src="https://source.unsplash.com/random/600x600/?digital,art,1" alt="Digital Art NFT" />
+                                    <img src="{item.image} " alt="{item.name}" />
                                     <div className="nft-badge">New</div>
                                 </div>
                                 <div className="nft-info">
                                     <h3 className="nft-title">{item.name}</h3>
                                     <div className="nft-creator">
-                                        <div className="creator-avatar">
+                                        {/* <div className="creator-avatar">
                                             <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Creator" />
-                                        </div>
-                                        <span>@digitalartist</span>
+                                        </div> */}
+                                        <span>Owner: {item.owner}</span>
                                     </div>
                                     <div className="nft-details">
                                         <div className="nft-price">
@@ -138,7 +138,7 @@ export default function Categorywise({ contract, Wallet }) {
                                         </div>
                                         <div className="nft-actions">
                                             <button className="action-btn"><i className="far fa-heart"></i></button>
-                                            <button className="action-btn" onClick={() => BuyItem(item.id)}><i className="fas fa-shopping-cart"></i></button>
+                                            <button className="action-btn" onClick={() => BuyItem(i,item.price)}><i className="fas fa-shopping-cart"></i></button>
                                         </div>
                                     </div>
                                 </div>

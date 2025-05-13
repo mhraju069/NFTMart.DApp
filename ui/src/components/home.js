@@ -51,8 +51,9 @@ export default function Home() {
                                 <h3 className="nft-title">Cosmic Harmony /1245</h3>
                                 <div className="nft-creator">
                                     <div className="creator-avatar">
-                                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Creator" />
+                                        {/* <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Creator" /> */}
                                     </div>
+                                        Owner:
                                     <span>@digitalartist</span>
                                 </div>
                                 <div className="nft-details">

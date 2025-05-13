@@ -115,9 +115,9 @@ contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         return list;
     }
 
-    function NftListByCategry(
+    function NftListByCategry (
         Category category
-    ) public view returns (NFT[] memory) {
+    ) public view virtual returns (NFT[] memory) {
         uint256 matchCount;
 
         // First pass: count matching NFTs
@@ -141,7 +141,7 @@ contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         return list;
     }
 
-    function MyNfts() public view returns (NFT[] memory,NFT[] memory) {
+    function MyNfts() public view virtual returns (NFT[] memory,NFT[] memory) {
         uint256 nftCount;
         uint256 purchesCount;
 
