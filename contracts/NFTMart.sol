@@ -13,6 +13,14 @@ contract MyNFT is
 {
     uint256 public tokenId;
 
+    function initialize() public virtual initializer {
+        tokenId = 0;
+        __ERC721_init("MyNFT", "MNFT");
+        __ERC721URIStorage_init();
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
+    }
+
     function MintNFT(address user, string memory URI) public onlyOwner {
         _safeMint(user, tokenId);
         _setTokenURI(tokenId, URI);
@@ -23,6 +31,7 @@ contract MyNFT is
         address newImplementation
     ) internal override onlyOwner {}
 }
+
 
 contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     MyNFT myNft;
@@ -45,7 +54,13 @@ contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         uint256 tokenId;
     }
     NFT[] public nftList;
+
     mapping(address => uint256) public myNftCount;
+
+    function initialize() public initializer virtual {
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
+    }
 
     function _authorizeUpgrade(
         address newImplementation
@@ -115,7 +130,7 @@ contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         return list;
     }
 
-    function NftListByCategry (
+    function NftListByCategry(
         Category category
     ) public view virtual returns (NFT[] memory) {
         uint256 matchCount;
@@ -141,7 +156,7 @@ contract NFTMart is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         return list;
     }
 
-    function MyNfts() public view virtual returns (NFT[] memory,NFT[] memory) {
+    function MyNfts() public view virtual returns (NFT[] memory, NFT[] memory) {
         uint256 nftCount;
         uint256 purchesCount;
 
