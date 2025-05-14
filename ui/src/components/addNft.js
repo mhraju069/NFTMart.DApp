@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import { parseEther } from 'ethers';
 
-export default function AddNft({ contract }) {
+export default function AddNft({ contract , wallet}) {
     // Refs for DOM elements
     const fileInputRef = useRef(null);
     const fileUploadAreaRef = useRef(null);
@@ -15,11 +16,13 @@ export default function AddNft({ contract }) {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");
-    const [category, setCategory] = useState("");
+    const [category, setCategory] = useState();
 
     // Main Upload and Mint handler
     const handleUpload = async (e) => {
         e.preventDefault(); // Prevent default form submit
+        if (category==0) {alert("Select a  valid category"); return}
+        if (!wallet) alert("Please connect your wallet")
         try {
             setStatus("Uploading to IPFS...");
 
@@ -48,7 +51,8 @@ export default function AddNft({ contract }) {
             setStatus("IPFS Upload Success! Minting NFT...");
 
             // 4. Call smart contract AddItems function
-            const tx = await contract.AddItems(name, price, ipfsURL, description, category);
+            
+            const tx = await contract.AddItems(name, parseEther(price), ipfsURL, description, category);
             await tx.wait();
 
             setStatus("✅ NFT Added Successfully!");
@@ -156,8 +160,8 @@ export default function AddNft({ contract }) {
                         {/* Category */}
                         <div className="form-group">
                             <label className="form-label">Category</label>
-                            <select className="form-control bg" placeholder onChange={(e) => setCategory(e.target.value)} required>
-                                <option disabled selected>Choose....</option>
+                            <select defaultValue={0} className="form-control bg" onChange={(e) => setCategory(e.target.value)} required>
+                                <option disabled value='0' >Choose....</option>
                                 <option value="1">Art</option>
                                 <option value="2">Image</option>
                                 <option value="3">Music</option>
@@ -174,14 +178,14 @@ export default function AddNft({ contract }) {
                         {/* Price */}
                         <div className="form-group">
                             <label className="form-label">Price</label>
-                            <input type="number" className="form-control" placeholder="0.00" step="0.01" min="0" onChange={(e) => setPrice(e.target.value)} required />
+                            <input type="number" className="form-control" placeholder="0.00" step="0.001" onChange={(e) => setPrice(e.target.value)} required />
                         </div>
 
                         {/* Currency */}
                         <div className="form-group">
                             <label className="form-label">Currency</label>
                             <select className="form-control" required>
-                                <option value="ETH" selected>ETH</option>
+                                <option value="ETH">ETH</option>
                             </select>
                         </div>
 

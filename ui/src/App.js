@@ -6,10 +6,10 @@ import Categorywise from './components/categorywise';
 import './App.css';
 import { BrowserProvider, JsonRpcProvider, Contract } from 'ethers';
 import ABI from './components/ABI.json'
-const contractAddress = '0xA973f1AEbAbce47fD6432a3BEEb7813fD6074Ee4'
+const contractAddress = '0x43803687E0dA670D751bb7D6B1CA96e18FD5A527'
 function App() {
-  const [wallet, setWallet] = useState('')
-  const [contract, setContract] = useState('')
+  const [wallet, setWallet] = useState(null)
+  const [contract, setContract] = useState(null)
   const [createview, setCreateview] = useState(false)
   const [homeview, setHomeview] = useState(true)
   const [exploreview, setExploreview] = useState(false)
@@ -23,8 +23,7 @@ function App() {
       }
       try {
         const provider = new JsonRpcProvider("https://eth-sepolia.g.alchemy.com/v2/TmhREneR_zfjyZ4i88_rUGBMztgR9UP0")
-        const signer = await provider.getSigner()
-        const contracts = new Contract(contractAddress, ABI.abi, signer)
+        const contracts = new Contract(contractAddress, ABI.abi, provider)
         setContract(contracts)
       } catch (err) {
         console.log(err.message)
@@ -91,8 +90,8 @@ function App() {
       </header>
 
 
-      {homeview && <Home />}
-      {createview && <AddNft />}
+      {homeview && <Home />}  
+      {createview && <AddNft contract={contract} wallet={wallet}/>}
       {exploreview && < Categorywise contract={contract} />}
 
 

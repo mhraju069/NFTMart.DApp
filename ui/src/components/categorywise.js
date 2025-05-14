@@ -1,24 +1,36 @@
 import { useEffect, useState } from 'react';
+import { ethers, parseEther, formatEther } from 'ethers';
 
 export default function Categorywise({ contract, Wallet }) {
     const [allNfts, setAllNfts] = useState([]);
     const [nfts, setNfts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [nftCount, setNftCount] = useState(0);
     const itemsPerPage = 8;
 
     const totalPages = Math.ceil(allNfts.length / itemsPerPage);
 
-    useEffect(() => {
-        const getNfts = async () => {
-            try {
-                const list = await contract.NftList();
-                setAllNfts(list);
-            } catch (e) {
-                console.log(e);
+    const getNfts = async () => {
+        try {
+            const list = []
+            const count = await contract.nftListLength()
+            for (let i = 0; i < count; i++) {
+                const item = await contract.nftList(i);
+                list.push(item)
             }
-        };
+            console.log(list)
+            setAllNfts(list);
+            setCurrentPage(1);
+            setNftCount(count)
+        } catch (e) {
+            console.log(e);
+        }
+    };
+    useEffect(() => {
         getNfts();
     }, [contract, Wallet]);
+
+
 
     useEffect(() => {
         const start = (currentPage - 1) * itemsPerPage;
@@ -36,14 +48,54 @@ export default function Categorywise({ contract, Wallet }) {
         }
     };
 
-    const BuyItem = async (id,price) => {
+    const BuyItem = async (tokenId, price) => {
         try {
-            const buy = await contract.BuyItem(id,{value:price});
+            const buy = await contract.BuyItem(tokenId, { value: parseEther(price) });
             await buy.wait();
         } catch (e) {
             console.log(e);
         }
     };
+
+
+    const MediaRenderer = ({ item, file }) => {
+        if (!item || !file) {
+            return <p>❌ Invalid media data.</p>;
+        }
+        const fileUrl = `https://ipfs.io/ipfs/${file.replace("ipfs://", "")}`;
+        const category = Number((item.category).toString())
+        console.log("category: ", category)
+        if (category == 1 || category == 2) {
+            return <img src={fileUrl} style={{ maxWidth: '100%', borderRadius: '10px' }} />;
+        } else if (category == 3) {
+            return (
+                <>
+                    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGkzbzR1dG5ldm95ZTluNDZ3OHpxNWlmcG9uOWF1MW55MHl2ZHFkeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/UUcRUn7c9mKCULj9Eq/giphy.gif" alt="" style={{ maxWidth: '100%', borderRadius: '10px', height: '79%', objectFit: 'cover', }} />
+                    <audio  controls style={{
+                        width: '100%',
+                        backgroundColor: 'var(--gray)',
+                        borderRadius: '8px', // Optional: if you want rounded corners
+                        border: 'none', // Removes any default border
+                    }}>
+                        <source src={fileUrl} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                    </audio>
+                </>
+            );
+        } else if (category == 4) {
+            return (
+                <video width="100%" controls style={{ borderRadius: '10px', height: '100%', objectFit: 'cover' }}>
+                    <source src={fileUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            );
+        } else {
+            return <p>📁 Unsupported or unknown file type.</p>;
+        }
+    };
+
+
+
 
     const handlePageClick = (pageNum) => setCurrentPage(pageNum);
     const handlePrev = () => currentPage > 1 && setCurrentPage(currentPage - 1);
@@ -61,6 +113,13 @@ export default function Categorywise({ contract, Wallet }) {
                     </div>
 
                     <div className="categories-grid">
+                        <span type="button" onClick={() => getNfts()} className="category-card">
+                            <div className="category-icon"><i className="fas fa-image"></i></div>
+                            <h3 className="category-title">See All</h3>
+                            <div className="category-count">{nftCount} Items</div>
+                        </span>
+
+
                         <span type="button" onClick={() => getNftsByCategory(1)} className="category-card">
                             <div className="category-icon"><i className="fas fa-paint-brush"></i></div>
                             <h3 className="category-title">Art</h3>
@@ -69,7 +128,7 @@ export default function Categorywise({ contract, Wallet }) {
 
                         <span type="button" onClick={() => getNftsByCategory(2)} className="category-card">
                             <div className="category-icon"><i className="fas fa-image"></i></div>
-                            <h3 className="category-title">Photography</h3>
+                            <h3 className="category-title">Image</h3>
                             <div className="category-count">743 Items</div>
                         </span>
 
@@ -85,17 +144,12 @@ export default function Categorywise({ contract, Wallet }) {
                             <div className="category-count">621 Items</div>
                         </span>
 
-                        <span type="button" className="category-card">
+                        <span type="button" onClick={() => getNftsByCategory(5)} className="category-card">
                             <div className="category-icon"><i className="fas fa-gamepad"></i></div>
-                            <h3 className="category-title">Games</h3>
+                            <h3 className="category-title">Others</h3>
                             <div className="category-count">1,567 Items</div>
                         </span>
 
-                        <span type="button" className="category-card">
-                            <div className="category-icon"><i className="fas fa-globe"></i></div>
-                            <h3 className="category-title">Virtual Worlds</h3>
-                            <div className="category-count">432 Items</div>
-                        </span>
                     </div>
                 </div>
             </section>
@@ -120,7 +174,8 @@ export default function Categorywise({ contract, Wallet }) {
                         {nfts.map((item, i) => (
                             <div className="nft-card" key={i}>
                                 <div className="nft-image">
-                                    <img src="{item.image} " alt="{item.name}" />
+                                    {/* <img src={`https://ipfs.io/ipfs/${item.image.replace("ipfs://", "")}`} alt={item.name} /> */}
+                                    <MediaRenderer item={item} file={item.image} />
                                     <div className="nft-badge">New</div>
                                 </div>
                                 <div className="nft-info">
@@ -129,16 +184,16 @@ export default function Categorywise({ contract, Wallet }) {
                                         {/* <div className="creator-avatar">
                                             <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Creator" />
                                         </div> */}
-                                        <span>Owner: {item.owner}</span>
+                                        <span>Owner: {item.owner.toString().slice(0, 6) + '....' + item.owner.toString().slice(-5)}</span>
                                     </div>
                                     <div className="nft-details">
                                         <div className="nft-price">
                                             <span className="price-label">Price </span>
-                                            <span className="price-value"><i className="fab fa-ethereum"></i>{item.price} ETH</span>
+                                            <span className="price-value"><i className="fab fa-ethereum"></i>{formatEther(item.price)} ETH</span>
                                         </div>
                                         <div className="nft-actions">
                                             <button className="action-btn"><i className="far fa-heart"></i></button>
-                                            <button className="action-btn" onClick={() => BuyItem(i,item.price)}><i className="fas fa-shopping-cart"></i></button>
+                                            <button className="action-btn" onClick={() => BuyItem(item.tokenId, item.price)}><i className="fas fa-shopping-cart"></i></button>
                                         </div>
                                     </div>
                                 </div>
