@@ -6,7 +6,12 @@ import Categorywise from './components/categorywise';
 import './App.css';
 import { BrowserProvider, JsonRpcProvider, Contract } from 'ethers';
 import ABI from './components/ABI.json'
+import Loader from './components/loader';
+import Alert from './components/alert';
+
 const contractAddress = '0x43803687E0dA670D751bb7D6B1CA96e18FD5A527'
+
+
 function App() {
   const [wallet, setWallet] = useState(null)
   const [contract, setContract] = useState(null)
@@ -14,6 +19,7 @@ function App() {
   const [homeview, setHomeview] = useState(true)
   const [exploreview, setExploreview] = useState(false)
   const [addrs, setAddrs] = useState()
+  const [loading, setLoading] = useState(false)
 
 
   useEffect(() => {
@@ -36,6 +42,7 @@ function App() {
 
   const Connect = async () => {
     try {
+      setLoading(true)
       const provider = new BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const contracts = new Contract(contractAddress, ABI.abi, signer)
@@ -43,10 +50,15 @@ function App() {
       setContract(contracts)
       setWallet(accounts)
       setAddrs(accounts.toString().slice(0, 6) + '....' + accounts.toString().slice(-5))
+      Alert("Wallet Connected", "success")
     } catch (err) {
+      Alert("Wallet Connection failed", "error")
       console.log(err.message)
+    } finally {
+      setLoading(false)
     }
   }
+
 
   const homeView = () => {
     if (!homeview) { setHomeview(true); setCreateview(false); setExploreview(false) }
@@ -88,10 +100,10 @@ function App() {
       </header>
 
 
-      {homeview && <Home contract={contract} wallet={wallet} exploreView={exploreView} createView={createView} />}
-      {exploreview && < Categorywise contract={contract} />}
-      {createview && <AddNft contract={contract} wallet={wallet} />}
-
+      {homeview && <Home contract={contract} wallet={wallet} exploreView={exploreView} createView={createView} setLoading={setLoading} />}
+      {exploreview && < Categorywise contract={contract} setLoading={setLoading} wallet={wallet}/>}
+      {createview && <AddNft contract={contract} wallet={wallet} setLoading={setLoading} />}
+      {loading && <Loader />}
 
     </>
   );

@@ -7,7 +7,6 @@ const MediaRenderer = ({ item,file }) => {
   }
   const fileUrl = `https://ipfs.io/ipfs/${file.replace("ipfs://", "")}`;
   const category = Number((item.category).toString())
-  console.log("category: ", category)
   if (category == 1 || category == 2) {
     return <img src={fileUrl} style={{ maxWidth: '100%', borderRadius: '10px' }} />;
   } else if (category == 3) {

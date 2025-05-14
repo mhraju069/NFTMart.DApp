@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { parseEther } from 'ethers';
+import Alert from './alert';
 
-export default function AddNft({ contract , wallet}) {
+export default function AddNft({ contract, wallet, setLoading }) {
     // Refs for DOM elements
     const fileInputRef = useRef(null);
     const fileUploadAreaRef = useRef(null);
@@ -20,11 +21,13 @@ export default function AddNft({ contract , wallet}) {
 
     // Main Upload and Mint handler
     const handleUpload = async (e) => {
+
         e.preventDefault(); // Prevent default form submit
-        if (category==0) {alert("Select a  valid category"); return}
-        if (!wallet) alert("Please connect your wallet")
+        if (category === 0) { alert("Select a  valid category"); return }
+        if (!wallet) { Alert("Please connect your wallet"); return }
+
         try {
-            setStatus("Uploading to IPFS...");
+            setLoading(true)
 
             // 1. Prepare file data for Pinata upload
             const formData = new FormData();
@@ -47,18 +50,19 @@ export default function AddNft({ contract , wallet}) {
             // 3. Get IPFS hash and format the URI
             const ipfsHash = res.data.IpfsHash;
             const ipfsURL = `ipfs://${ipfsHash}`;
-
-            setStatus("IPFS Upload Success! Minting NFT...");
+            Alert("File Uploaded Successfully! Minting NFT...", "success")
 
             // 4. Call smart contract AddItems function
-            
+
             const tx = await contract.AddItems(name, parseEther(price), ipfsURL, description, category);
             await tx.wait();
 
-            setStatus("✅ NFT Added Successfully!");
+            Alert("NFT minted successfully", "success")
         } catch (err) {
             console.error(err);
-            setStatus("❌ Something went wrong");
+            Alert("Something went wrong", "error")
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -145,9 +149,9 @@ export default function AddNft({ contract , wallet}) {
                                 </div>
                                 <div className="file-upload-text">Drag & drop your file here</div>
                                 <div className="file-upload-hint">Supports: JPG, PNG, MP4, MP3, GLB. Max size: 100MB</div>
-                            <div className="file-preview" ref={filePreviewRef}>
-                                <img ref={previewImageRef} alt="Preview" />
-                            </div>
+                                <div className="file-preview" ref={filePreviewRef}>
+                                    <img ref={previewImageRef} alt="Preview" />
+                                </div>
                             </div>
                         </div>
 

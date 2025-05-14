@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
 import MediaRenderer from './mediaRender';
-import { ethers, parseEther, formatEther } from 'ethers';
+import { parseEther, formatEther } from 'ethers';
+import Alert from './alert';
+import  useApprovalCheck  from './approve'
+const martAddress = '0x43803687E0dA670D751bb7D6B1CA96e18FD5A527'
 
-export default function Home({ contract, wallet, exploreView , createView}) {
+export default function Home({ contract, wallet, exploreView, createView, setLoading }) {
     const [allNfts, setAllNfts] = useState([]);
 
     const getNfts = async () => {
         try {
+            setLoading(true)
             const list = []
             const count = await contract.nftListLength()
             for (let i = 0; i < count; i++) {
@@ -16,21 +20,33 @@ export default function Home({ contract, wallet, exploreView , createView}) {
             setAllNfts(list);
         } catch (e) {
             console.log(e);
+        } finally {
+            setLoading(false)
         }
     };
     useEffect(() => {
-        getNfts();
-    }, [contract, wallet]);
+        if (contract) getNfts();
+    }, [contract]);
 
 
     const BuyItem = async (tokenId, price) => {
+        const approved = await useApprovalCheck(martAddress)
+        if (!approved) return
+        if (!wallet) { Alert("Please connect your wallet first"); return }
+        console.log(formatEther(price))
+        setLoading(true)
         try {
-            const buy = await contract.BuyItem(tokenId, { value: parseEther(price) });
+            const buy = await contract.buyItem(tokenId, { value: price });
             await buy.wait();
+            Alert("Item purchased successfully", "success")
+
         } catch (e) {
+            Alert("Item purchased failed", "error")
             console.log(e);
         }
+        setLoading(false)
     };
+
 
     return (
         <>
@@ -68,7 +84,7 @@ export default function Home({ contract, wallet, exploreView , createView}) {
                 <div className="container">
                     <div className="section-header">
                         <h2 className="section-title">Featured NFTs</h2>
-                        <span type="button" onClick={() => exploreView(true)} className="view-all" style={{cursor:"pointer"}} >View All <i className="fas fa-arrow-right"></i></span>
+                        <span type="button" onClick={() => exploreView(true)} className="view-all" style={{ cursor: "pointer" }} >View All <i className="fas fa-arrow-right"></i></span>
                     </div>
 
                     <div className="nft-grid">
@@ -103,7 +119,7 @@ export default function Home({ contract, wallet, exploreView , createView}) {
             </section>
 
 
-            <section className="categories-section">
+            {/* <section className="categories-section">
                 <div className="container">
                     <div className="section-header">
                         <h2 className="section-title">Browse Categories</h2>
@@ -148,7 +164,7 @@ export default function Home({ contract, wallet, exploreView , createView}) {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> */}
 
 
             <section className="how-it-works">

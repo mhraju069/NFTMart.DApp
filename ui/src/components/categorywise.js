@@ -1,35 +1,39 @@
 import { useEffect, useState } from 'react';
-import { ethers, parseEther, formatEther } from 'ethers';
+import { parseEther, formatEther } from 'ethers';
 import MediaRenderer from './mediaRender';
+import Alert from './alert';
+import  useApprovalCheck  from './approve'
+const martAddress = '0x43803687E0dA670D751bb7D6B1CA96e18FD5A527'
 
-export default function Categorywise({ contract, wallet }) {
+export default function Categorywise({ contract, wallet, setLoading }) {
     const [allNfts, setAllNfts] = useState([]);
     const [nfts, setNfts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [nftCount, setNftCount] = useState(0);
     const itemsPerPage = 8;
-
     const totalPages = Math.ceil(allNfts.length / itemsPerPage);
 
     const getNfts = async () => {
         try {
+            setLoading(true)
             const list = []
             const count = await contract.nftListLength()
             for (let i = 0; i < count; i++) {
                 const item = await contract.nftList(i);
                 list.push(item)
             }
-            console.log(list)
             setAllNfts(list);
             setCurrentPage(1);
             setNftCount(count)
         } catch (e) {
             console.log(e);
+        } finally {
+            setLoading(false)
         }
     };
     useEffect(() => {
         getNfts();
-    }, [contract, wallet]);
+    }, [contract]);
 
 
     useEffect(() => {
@@ -40,21 +44,33 @@ export default function Categorywise({ contract, wallet }) {
 
     const getNftsByCategory = async (category) => {
         try {
+            setLoading(true)
             const list = await contract.NftListByCategry(category);
             setAllNfts(list);
             setCurrentPage(1);
         } catch (e) {
             console.log(e);
+        } finally {
+            setLoading(false)
         }
     };
 
     const BuyItem = async (tokenId, price) => {
+        const approved = await useApprovalCheck(martAddress)
+        if (!approved) return
+        if (!wallet) { Alert("Please connect your wallet first"); return }
+        console.log(formatEther(price))
+        setLoading(true)
         try {
-            const buy = await contract.BuyItem(tokenId, { value: parseEther(price) });
+            const buy = await contract.buyItem(tokenId, { value: price });
             await buy.wait();
+            Alert("Item purchased successfully", "success")
+
         } catch (e) {
+            Alert("Item purchased failed", "error")
             console.log(e);
         }
+        setLoading(false)
     };
 
 
