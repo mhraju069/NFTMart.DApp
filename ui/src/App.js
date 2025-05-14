@@ -15,6 +15,7 @@ function App() {
   const [exploreview, setExploreview] = useState(false)
   const [addrs, setAddrs] = useState()
 
+
   useEffect(() => {
     const fetchdata = async () => {
       if (!window.ethereum) {
@@ -57,9 +58,6 @@ function App() {
     if (!createview) { setCreateview(true); setHomeview(false); setExploreview(false) }
   }
 
-
-
-
   return (
     <>
       <Particles />
@@ -71,14 +69,14 @@ function App() {
             <span>NexusNFT</span>
           </a>
 
-          <nav>
+          {!homeview && <nav>
             <ul>
               <li><button type='button' onClick={homeView}>Home</button></li>
               <li><button type='button' onClick={exploreView}>Explore</button></li>
               <li><button type='button' onClick={createView} >Create</button></li>
               <li><button type='button' disabled >Community</button></li>
             </ul>
-          </nav>
+          </nav>}
 
           <div className="header-actions">
             <button type='button' onClick={Connect} className="connect-wallet"> {wallet ? addrs : "Connect Wallet"}</button>
@@ -90,9 +88,9 @@ function App() {
       </header>
 
 
-      {homeview && <Home />}  
-      {createview && <AddNft contract={contract} wallet={wallet}/>}
+      {homeview && <Home contract={contract} wallet={wallet} exploreView={exploreView} createView={createView} />}
       {exploreview && < Categorywise contract={contract} />}
+      {createview && <AddNft contract={contract} wallet={wallet} />}
 
 
     </>

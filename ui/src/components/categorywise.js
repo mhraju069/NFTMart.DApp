@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ethers, parseEther, formatEther } from 'ethers';
+import MediaRenderer from './mediaRender';
 
-export default function Categorywise({ contract, Wallet }) {
+export default function Categorywise({ contract, wallet }) {
     const [allNfts, setAllNfts] = useState([]);
     const [nfts, setNfts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -28,8 +29,7 @@ export default function Categorywise({ contract, Wallet }) {
     };
     useEffect(() => {
         getNfts();
-    }, [contract, Wallet]);
-
+    }, [contract, wallet]);
 
 
     useEffect(() => {
@@ -58,41 +58,41 @@ export default function Categorywise({ contract, Wallet }) {
     };
 
 
-    const MediaRenderer = ({ item, file }) => {
-        if (!item || !file) {
-            return <p>❌ Invalid media data.</p>;
-        }
-        const fileUrl = `https://ipfs.io/ipfs/${file.replace("ipfs://", "")}`;
-        const category = Number((item.category).toString())
-        console.log("category: ", category)
-        if (category == 1 || category == 2) {
-            return <img src={fileUrl} style={{ maxWidth: '100%', borderRadius: '10px' }} />;
-        } else if (category == 3) {
-            return (
-                <>
-                    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGkzbzR1dG5ldm95ZTluNDZ3OHpxNWlmcG9uOWF1MW55MHl2ZHFkeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/UUcRUn7c9mKCULj9Eq/giphy.gif" alt="" style={{ maxWidth: '100%', borderRadius: '10px', height: '79%', objectFit: 'cover', }} />
-                    <audio  controls style={{
-                        width: '100%',
-                        backgroundColor: 'var(--gray)',
-                        borderRadius: '8px', // Optional: if you want rounded corners
-                        border: 'none', // Removes any default border
-                    }}>
-                        <source src={fileUrl} type="audio/mpeg" />
-                        Your browser does not support the audio element.
-                    </audio>
-                </>
-            );
-        } else if (category == 4) {
-            return (
-                <video width="100%" controls style={{ borderRadius: '10px', height: '100%', objectFit: 'cover' }}>
-                    <source src={fileUrl} type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
-            );
-        } else {
-            return <p>📁 Unsupported or unknown file type.</p>;
-        }
-    };
+    // const MediaRenderer = ({ item, file }) => {
+    //     if (!item || !file) {
+    //         return <p>❌ Invalid media data.</p>;
+    //     }
+    //     const fileUrl = `https://ipfs.io/ipfs/${file.replace("ipfs://", "")}`;
+    //     const category = Number((item.category).toString())
+    //     console.log("category: ", category)
+    //     if (category == 1 || category == 2) {
+    //         return <img src={fileUrl} style={{ maxWidth: '100%', borderRadius: '10px' }} />;
+    //     } else if (category == 3) {
+    //         return (
+    //             <>
+    //                 <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGkzbzR1dG5ldm95ZTluNDZ3OHpxNWlmcG9uOWF1MW55MHl2ZHFkeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/UUcRUn7c9mKCULj9Eq/giphy.gif" alt="" style={{ maxWidth: '100%', borderRadius: '10px', height: '79%', objectFit: 'cover', }} />
+    //                 <audio  controls style={{
+    //                     width: '100%',
+    //                     backgroundColor: 'var(--gray)',
+    //                     borderRadius: '8px', // Optional: if you want rounded corners
+    //                     border: 'none', // Removes any default border
+    //                 }}>
+    //                     <source src={fileUrl} type="audio/mpeg" />
+    //                     Your browser does not support the audio element.
+    //                 </audio>
+    //             </>
+    //         );
+    //     } else if (category == 4) {
+    //         return (
+    //             <video width="100%" controls style={{ borderRadius: '10px', height: '100%', objectFit: 'cover' }}>
+    //                 <source src={fileUrl} type="video/mp4" />
+    //                 Your browser does not support the video tag.
+    //             </video>
+    //         );
+    //     } else {
+    //         return <p>📁 Unsupported or unknown file type.</p>;
+    //     }
+    // };
 
 
 
@@ -174,16 +174,12 @@ export default function Categorywise({ contract, Wallet }) {
                         {nfts.map((item, i) => (
                             <div className="nft-card" key={i}>
                                 <div className="nft-image">
-                                    {/* <img src={`https://ipfs.io/ipfs/${item.image.replace("ipfs://", "")}`} alt={item.name} /> */}
                                     <MediaRenderer item={item} file={item.image} />
                                     <div className="nft-badge">New</div>
                                 </div>
                                 <div className="nft-info">
                                     <h3 className="nft-title">{item.name}</h3>
                                     <div className="nft-creator">
-                                        {/* <div className="creator-avatar">
-                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Creator" />
-                                        </div> */}
                                         <span>Owner: {item.owner.toString().slice(0, 6) + '....' + item.owner.toString().slice(-5)}</span>
                                     </div>
                                     <div className="nft-details">

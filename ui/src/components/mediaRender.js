@@ -1,61 +1,39 @@
 import React, { useEffect, useState } from 'react';
 
-const MediaRenderer = ({ ipfsUrl }) => {
-  const [mediaType, setMediaType] = useState(null);
-  const [fileUrl, setFileUrl] = useState('');
+const MediaRenderer = ({ item,file }) => {
 
-  useEffect(() => {
-    const httpUrl = `https://ipfs.io/ipfs/${ipfsUrl.replace("ipfs://", "")}`;
-    setFileUrl(httpUrl);
-
-    const fetchContentType = async () => {
-      try {
-        const response = await fetch(httpUrl, { method: 'HEAD' });
-        const contentType = response.headers.get('content-type');
-
-        if (contentType.includes('image')) {
-          setMediaType('image');
-        } else if (contentType.includes('video')) {
-          setMediaType('video');
-        } else if (contentType.includes('audio')) {
-          setMediaType('audio');
-        } else {
-          setMediaType('unknown');
-        }
-      } catch (err) {
-        console.error('Error detecting content type:', err);
-        setMediaType('error');
-      }
-    };
-
-    fetchContentType();
-  }, [ipfsUrl]);
-
-  if (!mediaType) {
-    return <p>⏳ Loading media...</p>;
+  if (!item || !file) {
+    return <p>❌ Invalid media data.</p>;
   }
-
-  if (mediaType === 'image') {
-    return <img src={fileUrl} alt="media" style={{ maxWidth: '100%', borderRadius: '10px' }} />;
-  } else if (mediaType === 'video') {
+  const fileUrl = `https://ipfs.io/ipfs/${file.replace("ipfs://", "")}`;
+  const category = Number((item.category).toString())
+  console.log("category: ", category)
+  if (category == 1 || category == 2) {
+    return <img src={fileUrl} style={{ maxWidth: '100%', borderRadius: '10px' }} />;
+  } else if (category == 3) {
     return (
-      <video width="100%" controls style={{ borderRadius: '10px' }}>
+      <>
+        <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGkzbzR1dG5ldm95ZTluNDZ3OHpxNWlmcG9uOWF1MW55MHl2ZHFkeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/UUcRUn7c9mKCULj9Eq/giphy.gif" alt="" style={{ maxWidth: '100%', borderRadius: '10px', height: '79%', objectFit: 'cover', }} />
+        <audio controls style={{
+          width: '100%',
+          backgroundColor: 'var(--gray)',
+          borderRadius: '8px', // Optional: if you want rounded corners
+          border: 'none', // Removes any default border
+        }}>
+          <source src={fileUrl} type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
+      </>
+    );
+  } else if (category == 4) {
+    return (
+      <video width="100%" controls style={{ borderRadius: '10px', height: '100%', objectFit: 'cover' }}>
         <source src={fileUrl} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     );
-  } else if (mediaType === 'audio') {
-    return (
-      <audio controls style={{ width: '100%' }}>
-        <source src={fileUrl} type="audio/mpeg" />
-        Your browser does not support the audio element.
-      </audio>
-    );
-  } else if (mediaType === 'unknown') {
+  } else {
     return <p>📁 Unsupported or unknown file type.</p>;
-  } else if (mediaType === 'error') {
-    return <p>❌ Error loading media.</p>;
   }
-};
-
+}
 export default MediaRenderer;

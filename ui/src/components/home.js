@@ -1,6 +1,37 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
+import MediaRenderer from './mediaRender';
+import { ethers, parseEther, formatEther } from 'ethers';
 
-export default function Home() {
+export default function Home({ contract, wallet, exploreView , createView}) {
+    const [allNfts, setAllNfts] = useState([]);
+
+    const getNfts = async () => {
+        try {
+            const list = []
+            const count = await contract.nftListLength()
+            for (let i = 0; i < count; i++) {
+                const item = await contract.nftList(i);
+                list.push(item)
+            }
+            setAllNfts(list);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+    useEffect(() => {
+        getNfts();
+    }, [contract, wallet]);
+
+
+    const BuyItem = async (tokenId, price) => {
+        try {
+            const buy = await contract.BuyItem(tokenId, { value: parseEther(price) });
+            await buy.wait();
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
     return (
         <>
             <section className="hero">
@@ -10,8 +41,8 @@ export default function Home() {
                         <p>Explore the world's first and largest NFT marketplace with over 10,000+ digital assets. Join our community of creators and collectors.</p>
 
                         <div className="hero-buttons">
-                            <a href="/" className="btn btn-primary">Explore Now</a>
-                            <a href="/" className="btn btn-secondary">Create NFT</a>
+                            <span onClick={exploreView} type='button' className="btn btn-primary">Explore Now</span>
+                            <span onClick={createView} type='button' className="btn btn-secondary">Create NFT</span>
                         </div>
 
                         <div className="stats">
@@ -37,113 +68,37 @@ export default function Home() {
                 <div className="container">
                     <div className="section-header">
                         <h2 className="section-title">Featured NFTs</h2>
-                        <a href="/" className="view-all">View All <i className="fas fa-arrow-right"></i></a>
+                        <span type="button" onClick={() => exploreView(true)} className="view-all" style={{cursor:"pointer"}} >View All <i className="fas fa-arrow-right"></i></span>
                     </div>
 
                     <div className="nft-grid">
-
-                        <div className="nft-card">
-                            <div className="nft-image">
-                                <img src="https://source.unsplash.com/random/600x600/?abstract,art" alt="Abstract Art NFT" />
-                                <div className="nft-badge">Hot Bid</div>
-                            </div>
-                            <div className="nft-info">
-                                <h3 className="nft-title">Cosmic Harmony /1245</h3>
-                                <div className="nft-creator">
-                                    <div className="creator-avatar">
-                                        {/* <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Creator" /> */}
-                                    </div>
-                                        Owner:
-                                    <span>@digitalartist</span>
+                        {allNfts.map((item, i) => (
+                            <div className="nft-card" key={i}>
+                                <div className="nft-image">
+                                    <MediaRenderer item={item} file={item.image} />
+                                    <div className="nft-badge">New</div>
                                 </div>
-                                <div className="nft-details">
-                                    <div className="nft-price">
-                                        <span className="price-label">Current Bid</span>
-                                        <span className="price-value"><i className="fab fa-ethereum"></i> 0.45 ETH</span>
+                                <div className="nft-info">
+                                    <h3 className="nft-title">{item.name}</h3>
+                                    <div className="nft-creator">
+                                        <span>Owner: {item.owner.toString().slice(0, 6) + '....' + item.owner.toString().slice(-5)}</span>
                                     </div>
-                                    <div className="nft-actions">
-                                        <button className="action-btn"><i className="far fa-heart"></i></button>
-                                        <button className="action-btn"><i className="fas fa-shopping-cart"></i></button>
+                                    <div className="nft-details">
+                                        <div className="nft-price">
+                                            <span className="price-label">Price </span>
+                                            <span className="price-value"><i className="fab fa-ethereum"></i>{formatEther(item.price)} ETH</span>
+                                        </div>
+                                        <div className="nft-actions">
+                                            <button className="action-btn"><i className="far fa-heart"></i></button>
+                                            <button className="action-btn" onClick={() => BuyItem(item.tokenId, item.price)}><i className="fas fa-shopping-cart"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="nft-card">
-                            <div className="nft-image">
-                                <img src="https://source.unsplash.com/random/600x600/?digital,art" alt="Digital Art NFT" />
-                                <div className="nft-badge">New</div>
-                            </div>
-                            <div className="nft-info">
-                                <h3 className="nft-title">Neon Dreams /4592</h3>
-                                <div className="nft-creator">
-                                    <div className="creator-avatar">
-                                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Creator" />
-                                    </div>
-                                    <span>@neoncreator</span>
-                                </div>
-                                <div className="nft-details">
-                                    <div className="nft-price">
-                                        <span className="price-label">Current Bid</span>
-                                        <span className="price-value"><i className="fab fa-ethereum"></i> 1.25 ETH</span>
-                                    </div>
-                                    <div className="nft-actions">
-                                        <button className="action-btn"><i className="far fa-heart"></i></button>
-                                        <button className="action-btn"><i className="fas fa-shopping-cart"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="nft-card">
-                            <div className="nft-image">
-                                <img src="https://source.unsplash.com/random/600x600/?crypto,art" alt="Crypto Art NFT" />
-                            </div>
-                            <div className="nft-info">
-                                <h3 className="nft-title">Blockchain Warriors /7831</h3>
-                                <div className="nft-creator">
-                                    <div className="creator-avatar">
-                                        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Creator" />
-                                    </div>
-                                    <span>@cryptoartist</span>
-                                </div>
-                                <div className="nft-details">
-                                    <div className="nft-price">
-                                        <span className="price-label">Current Bid</span>
-                                        <span className="price-value"><i className="fab fa-ethereum"></i> 2.75 ETH</span>
-                                    </div>
-                                    <div className="nft-actions">
-                                        <button className="action-btn"><i className="far fa-heart"></i></button>
-                                        <button className="action-btn"><i className="fas fa-shopping-cart"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="nft-card">
-                            <div className="nft-image">
-                                <img src="https://source.unsplash.com/random/600x600/?future,art" alt="Future Art NFT" />
-                                <div className="nft-badge">Auction</div>
-                            </div>
-                            <div className="nft-info">
-                                <h3 className="nft-title">Digital Utopia /3267</h3>
-                                <div className="nft-creator">
-                                    <div className="creator-avatar">
-                                        <img src="https://randomuser.me/api/portraits/women/42.jpg" alt="Creator" />
-                                    </div>
-                                    <span>@futurist</span>
-                                </div>
-                                <div className="nft-details">
-                                    <div className="nft-price">
-                                        <span className="price-label">Current Bid</span>
-                                        <span className="price-value"><i className="fab fa-ethereum"></i> 0.89 ETH</span>
-                                    </div>
-                                    <div className="nft-actions">
-                                        <button className="action-btn"><i className="far fa-heart"></i></button>
-                                        <button className="action-btn"><i className="fas fa-shopping-cart"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        ))}
                     </div>
+
+
                 </div>
             </section>
 
