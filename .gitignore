@@ -1,17 +1,45 @@
-node_modules
+# Node.js
+node_modules/
 .env
+.env.*  # যেমন .env.local, .env.production ইত্যাদি
 
 # Hardhat files
-/cache
-/artifacts
+/cache/
+artifacts/
 
 # TypeChain files
-/typechain
-/typechain-types
+/typechain/
+/typechain-types/
 
 # solidity-coverage files
-/coverage
+/coverage/
 /coverage.json
 
-# Hardhat Ignition default folder for deployments against a local node
-ignition/deployments/chain-31337
+# Hardhat Ignition deployments
+ignition/deployments/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+
+# Django
+*.sqlite3
+db.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+
+# Django virtual environment
+env/
+
+# VSCode config (optional)
+.vscode/
+
+# OS specific
+.DS_Store
+Thumbs.db
