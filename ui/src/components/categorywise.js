@@ -33,7 +33,7 @@ export default function Categorywise({ contract, wallet, setLoading }) {
     };
     useEffect(() => {
         getNfts();
-    }, [contract]);
+    }, [contract,wallet]);
 
 
     useEffect(() => {

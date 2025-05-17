@@ -26,7 +26,7 @@ export default function Home({ contract, wallet, exploreView, createView, setLoa
     };
     useEffect(() => {
         if (contract) getNfts();
-    }, [contract]);
+    }, [contract,wallet]);
 
 
     const BuyItem = async (tokenId, price) => {

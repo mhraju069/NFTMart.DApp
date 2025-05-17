@@ -4,22 +4,24 @@ import Home from './components/home';
 import AddNft from './components/addNft';
 import Categorywise from './components/categorywise';
 import './App.css';
-import { BrowserProvider, JsonRpcProvider, Contract } from 'ethers';
-import ABI from './components/ABI.json'
+import { JsonRpcProvider, Contract } from 'ethers'
 import Loader from './components/loader';
-import Alert from './components/alert';
+import ConnectWallet from './components/ConnectWallet';
+import ABI from './components/ABI.json'
+
+
 
 const contractAddress = '0x43803687E0dA670D751bb7D6B1CA96e18FD5A527'
 
 
 function App() {
-  const [wallet, setWallet] = useState(null)
   const [contract, setContract] = useState(null)
   const [createview, setCreateview] = useState(false)
   const [homeview, setHomeview] = useState(true)
   const [exploreview, setExploreview] = useState(false)
-  const [addrs, setAddrs] = useState()
-  const [loading, setLoading] = useState(false)
+
+  const { Connect, setLoading, wallet, addrs, loading, profile } = ConnectWallet()
+
 
 
   useEffect(() => {
@@ -40,24 +42,7 @@ function App() {
   }, [])
 
 
-  const Connect = async () => {
-    try {
-      setLoading(true)
-      const provider = new BrowserProvider(window.ethereum)
-      const signer = await provider.getSigner()
-      const contracts = new Contract(contractAddress, ABI.abi, signer)
-      const accounts = await signer.getAddress()
-      setContract(contracts)
-      setWallet(accounts)
-      setAddrs(accounts.toString().slice(0, 6) + '....' + accounts.toString().slice(-5))
-      Alert("Wallet Connected", "success")
-    } catch (err) {
-      Alert("Wallet Connection failed", "error")
-      console.log(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
+
 
 
   const homeView = () => {
@@ -92,16 +77,33 @@ function App() {
 
           <div className="header-actions">
             <button type='button' onClick={Connect} className="connect-wallet"> {wallet ? addrs : "Connect Wallet"}</button>
-            <div className="user-profile">
-              <i className='fas fa-user-circle' />
-            </div>
+            {profile && <>
+              <label className="event-wrapper">
+                <input type="checkbox" className="event-wrapper-inp" />
+
+                <div className="bar">
+                  {/* <i className="fas fa-user-circle" style={{ fontSize: "1.8rem", color: "white" }}></i> */}
+                  <img className='profile_picture' src={`http://127.0.0.1:8000${profile.image}`} alt="User Image" />
+                </div>
+
+                <section className="menu-container">
+                  <div className="menu-list">Name: {profile.name}</div>
+                  <div className="menu-list">Email: {profile.email} </div>
+                  <div className="menu-list" style={{ color: "crimson" }}>Delete</div>
+                </section>
+              </label>
+
+
+
+            </>
+            }
           </div>
         </div>
       </header>
 
 
       {homeview && <Home contract={contract} wallet={wallet} exploreView={exploreView} createView={createView} setLoading={setLoading} />}
-      {exploreview && < Categorywise contract={contract} setLoading={setLoading} wallet={wallet}/>}
+      {exploreview && < Categorywise contract={contract} setLoading={setLoading} wallet={wallet} />}
       {createview && <AddNft contract={contract} wallet={wallet} setLoading={setLoading} />}
       {loading && <Loader />}
 

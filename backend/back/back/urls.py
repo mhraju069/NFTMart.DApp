@@ -17,10 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from user.views import *
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('nonce/', NonceView.as_view()),
-    path('verify/', VerifySignatureView.as_view()),
+    path('api/nonce/', NonceView.as_view()),
+    path('api/verify/', VerifySignatureView.as_view()),
+    path('api/profile/', ProfileView.as_view()),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
