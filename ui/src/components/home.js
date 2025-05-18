@@ -2,11 +2,16 @@ import { useEffect, useState } from 'react'
 import MediaRenderer from './mediaRender';
 import { parseEther, formatEther } from 'ethers';
 import Alert from './alert';
-import  useApprovalCheck  from './approve'
+import useApprovalCheck from './approve'
+import axios from 'axios';
 const martAddress = '0x43803687E0dA670D751bb7D6B1CA96e18FD5A527'
 
 export default function Home({ contract, wallet, exploreView, createView, setLoading }) {
     const [allNfts, setAllNfts] = useState([]);
+    const [name, setName] = useState("")
+    const [image, setImage] = useState("")
+
+
 
     const getNfts = async () => {
         try {
@@ -15,8 +20,19 @@ export default function Home({ contract, wallet, exploreView, createView, setLoa
             const count = await contract.nftListLength()
             for (let i = 0; i < count; i++) {
                 const item = await contract.nftList(i);
-                list.push(item)
+                const user = await axios.get(`http://127.0.0.1:8000/api/profiledata/${item.owner}/`)
+                list.push({
+                    owner: item.owner,
+                    name: item.name,
+                    image: item.image,
+                    price: item.price,
+                    tokenId: item.tokenId,
+                    category: item.category,
+                    profileName: user.data.name,
+                    profileImage: user.data.image ? `http://127.0.0.1:8000${user.data.image}` : null
+                });
             }
+            console.log(list)
             setAllNfts(list);
         } catch (e) {
             console.log(e);
@@ -26,7 +42,7 @@ export default function Home({ contract, wallet, exploreView, createView, setLoa
     };
     useEffect(() => {
         if (contract) getNfts();
-    }, [contract,wallet]);
+    }, [contract, wallet]);
 
 
     const BuyItem = async (tokenId, price) => {
@@ -97,7 +113,8 @@ export default function Home({ contract, wallet, exploreView, createView, setLoa
                                 <div className="nft-info">
                                     <h3 className="nft-title">{item.name}</h3>
                                     <div className="nft-creator">
-                                        <span>Owner: {item.owner.toString().slice(0, 6) + '....' + item.owner.toString().slice(-5)}</span>
+                                        <img src={item.profileImage} alt="Creator" className="creator-avatar" />
+                                        <span>{item.profileName} ({item.owner?.toString().slice(0, 5) + '....' + item.owner?.toString().slice(-4)})</span>
                                     </div>
                                     <div className="nft-details">
                                         <div className="nft-price">

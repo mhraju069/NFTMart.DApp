@@ -7,7 +7,7 @@ class UserManager(BaseUserManager):
     def create_user(self, wallet, password=None):
         if not wallet:
             raise ValueError('Users must have a wallet address')
-        user = self.model(wallet=wallet)
+        user = self.model(wallet=wallet())
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -30,10 +30,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'wallet'
-    REQUIRED_FIELDS = []  # ✅ এটা অবশ্যই থাকতে হবে
+    REQUIRED_FIELDS = [wallet]  
 
     def __str__(self):
         return self.wallet
+    
+    def save(self, *args, **kwargs):
+        if self.wallet:
+            self.wallet = self.wallet.lower()
+        super().save(*args, **kwargs)
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -41,6 +46,10 @@ class Profile(models.Model):
     bio = models.TextField(blank=True)
     image = models.ImageField(upload_to='image', blank=True, null=True)
     email = models.EmailField(blank=True)
+    
+    
+
+    
     
 
     

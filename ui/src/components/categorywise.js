@@ -50,6 +50,7 @@ export default function Categorywise({ contract, wallet, setLoading }) {
             setCurrentPage(1);
         } catch (e) {
             console.log(e);
+            Alert("Something went wrong", "error")
         } finally {
             setLoading(false)
         }

@@ -25,6 +25,8 @@ urlpatterns = [
     path('api/nonce/', NonceView.as_view()),
     path('api/verify/', VerifySignatureView.as_view()),
     path('api/profile/', ProfileView.as_view()),
+    path('api/profiledata/<str:address>/', FetchProfileView.as_view()),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

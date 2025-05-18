@@ -17,7 +17,7 @@ class NonceView(APIView):
             return Response({'error': 'wallet is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         nonce = f"Login to NFTMart: {random.randint(100000,999999)}"
-        user,_ = User.objects.get_or_create(wallet=wallet)
+        user,_ = User.objects.get_or_create(wallet=wallet.lower())
         user.nonce = nonce
         user.save()
         return Response({'nonce': nonce}, status=status.HTTP_200_OK)
@@ -28,7 +28,7 @@ class VerifySignatureView(APIView):
         signature = request.data.get('signature')
         
         try :
-            user = User.objects.get(wallet=wallet)
+            user = User.objects.get(wallet=wallet.lower())
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
@@ -53,3 +53,17 @@ class ProfileView(APIView):
             'email' : profile.email,
             'image' : profile.image.url if profile.image else None,
         })
+        
+class FetchProfileView(APIView):
+    def get(self, request, address):
+        profile = Profile.objects.filter(user__wallet=address.lower()).first()
+        if profile:
+            return Response({
+                'name': profile.name,
+                'image': profile.image.url if profile.image else None,
+            })
+        else:
+            return Response({
+                'name': 'Unknown',
+                'image': None,
+            }, status=status.HTTP_404_NOT_FOUND)

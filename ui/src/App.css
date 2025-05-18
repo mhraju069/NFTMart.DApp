@@ -375,6 +375,7 @@ nav ul li Button:hover::after {
   height: 30px;
   border-radius: 50%;
   overflow: hidden;
+  object-fit: cover ;
 }
 
 .creator-avatar img {
