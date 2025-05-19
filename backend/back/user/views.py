@@ -51,19 +51,38 @@ class ProfileView(APIView):
             'name' : profile.name,
             'bio' : profile.bio,
             'email' : profile.email,
-            'image' : profile.image.url if profile.image else None,
+            'image' : profile.image.url if profile.image else "",
         })
         
 class FetchProfileView(APIView):
     def get(self, request, address):
-        profile = Profile.objects.filter(user__wallet=address.lower()).first()
+        profile = Profile.objects.get(user__wallet=address.lower())
         if profile:
             return Response({
                 'name': profile.name,
                 'image': profile.image.url if profile.image else None,
             })
         else:
-            return Response({
-                'name': 'Unknown',
-                'image': None,
-            }, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error":"No Profile Found"}, status=status.HTTP_404_NOT_FOUND)
+            
+
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request,address):
+
+        try:
+            profile = Profile.objects.get(user__wallet=address.lower())
+
+            profile.name = request.data.get('name', profile.name)
+            profile.bio = request.data.get('bio', profile.bio)
+            profile.email = request.data.get('email', profile.email)
+
+            if 'image' in request.FILES:
+                profile.image = request.FILES['image']
+
+            profile.save()
+            return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
+
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)

@@ -10,16 +10,15 @@ export default function ConnectWallet() {
     const [wallet, setWallet] = useState(null)
     const [loading, setLoading] = useState(false)
     const [profile, setProfile] = useState()
+    const [access,setAccess] = useState()
 
     const Connect = async () => {
         try {
+            if (!window.ethereum) {Alert("Please Install Metamask" , 'error') ; return}
             setLoading(true)
             const provider = new BrowserProvider(window.ethereum)
             const signer = await provider.getSigner()
-            const contracts = new Contract(contractAddress, ABI.abi, signer)
             const account = await signer.getAddress()
-
-
 
             const nonceRes = await axios.post("http://localhost:8000/api/nonce/", {
                 wallet: account
@@ -37,7 +36,8 @@ export default function ConnectWallet() {
             });
 
             const { access } = verifyRes.data;
-
+            setAccess(access)
+            console.log(access)
             localStorage.setItem("token", access);
 
             const profileRes = await axios.get("http://localhost:8000/api/profile/", {
@@ -57,5 +57,5 @@ export default function ConnectWallet() {
             setLoading(false)
         }
     }
-    return { Connect, setLoading, wallet, addrs, loading ,profile}
+    return { Connect, setLoading, wallet, addrs, loading ,profile,access}
 }

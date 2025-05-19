@@ -8,7 +8,7 @@ import { JsonRpcProvider, Contract } from 'ethers'
 import Loader from './components/loader';
 import ConnectWallet from './components/ConnectWallet';
 import ABI from './components/ABI.json'
-
+import NFTDashboard from './components/dashboard';
 
 
 const contractAddress = '0x43803687E0dA670D751bb7D6B1CA96e18FD5A527'
@@ -19,17 +19,14 @@ function App() {
   const [createview, setCreateview] = useState(false)
   const [homeview, setHomeview] = useState(true)
   const [exploreview, setExploreview] = useState(false)
+  const [dashboardview, setDashboardview] = useState(false)
 
-  const { Connect, setLoading, wallet, addrs, loading, profile } = ConnectWallet()
 
+  const { Connect, setLoading, wallet, addrs, loading, profile,access} = ConnectWallet()
 
 
   useEffect(() => {
     const fetchdata = async () => {
-      if (!window.ethereum) {
-        alert("Please install metamask")
-        return
-      }
       try {
         const provider = new JsonRpcProvider("https://eth-sepolia.g.alchemy.com/v2/TmhREneR_zfjyZ4i88_rUGBMztgR9UP0")
         const contracts = new Contract(contractAddress, ABI.abi, provider)
@@ -42,17 +39,17 @@ function App() {
   }, [])
 
 
-
-
-
   const homeView = () => {
-    if (!homeview) { setHomeview(true); setCreateview(false); setExploreview(false) }
+    if (!homeview) { setHomeview(true); setCreateview(false); setExploreview(false); setDashboardview(false)}
   }
   const exploreView = () => {
-    if (!exploreview) { setCreateview(false); setHomeview(false); setExploreview(true) }
+    if (!exploreview) { setCreateview(false); setHomeview(false); setExploreview(true); setDashboardview(false) }
   }
   const createView = () => {
-    if (!createview) { setCreateview(true); setHomeview(false); setExploreview(false) }
+    if (!createview) { setCreateview(true); setHomeview(false); setExploreview(false); setDashboardview(false)}
+  }
+  const dashboardView=()=>{
+    if (!dashboardview) { setDashboardview(true); setCreateview(false); setHomeview(false); setExploreview(false)}
   }
 
   return (
@@ -82,14 +79,15 @@ function App() {
                 <input type="checkbox" className="event-wrapper-inp" />
 
                 <div className="bar">
-                  {/* <i className="fas fa-user-circle" style={{ fontSize: "1.8rem", color: "white" }}></i> */}
-                  <img className='profile_picture' src={`http://127.0.0.1:8000${profile.image}`} alt="User Image" />
+                  {profile.image ? <img className='profile_picture' src={`http://127.0.0.1:8000${profile.image}`} alt="User Image" />
+                    : <i className="fas fa-user-circle" style={{ fontSize: "1.8rem", color: "white" }}></i>
+                  }
                 </div>
 
                 <section className="menu-container">
                   <div className="menu-list">Name: {profile.name}</div>
                   <div className="menu-list">Email: {profile.email} </div>
-                  <div className="menu-list" style={{ color: "crimson" }}>Delete</div>
+                  <span onClick={dashboardView} className="menu-list" >Dashboard</span>
                 </section>
               </label>
 
@@ -104,8 +102,9 @@ function App() {
 
       {homeview && <Home contract={contract} wallet={wallet} exploreView={exploreView} createView={createView} setLoading={setLoading} />}
       {exploreview && < Categorywise contract={contract} setLoading={setLoading} wallet={wallet} />}
-      {createview && <AddNft contract={contract} wallet={wallet} setLoading={setLoading} />}
+      {createview && <AddNft contract={contract} wallet={wallet} setLoading={setLoading} profile={profile} />}
       {loading && <Loader />}
+      { dashboardview && < NFTDashboard profile={profile} addrs={addrs} wallet={wallet} access={access} />}  
 
     </>
   );

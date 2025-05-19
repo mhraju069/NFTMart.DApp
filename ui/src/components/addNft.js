@@ -3,7 +3,8 @@ import axios from 'axios';
 import { parseEther } from 'ethers';
 import Alert from './alert';
 
-export default function AddNft({ contract, wallet, setLoading }) {
+export default function AddNft({ contract, wallet, setLoading,profile }) {
+
     // Refs for DOM elements
     const fileInputRef = useRef(null);
     const fileUploadAreaRef = useRef(null);
@@ -18,13 +19,15 @@ export default function AddNft({ contract, wallet, setLoading }) {
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");
     const [category, setCategory] = useState();
-
+    
     // Main Upload and Mint handler
     const handleUpload = async (e) => {
 
         e.preventDefault(); // Prevent default form submit
-        if (category === 0) { alert("Select a  valid category"); return }
-        if (!wallet) { Alert("Please connect your wallet"); return }
+        if (category === 0) { Alert("Select a  valid category", "warning"); return }
+        if (!wallet) { Alert("Please connect your wallet","warning"); return }
+        console.log(profile)
+        if (profile.image=='' && profile.name=='') {Alert("Please complite your profile first","warning"); return }
 
         try {
             setLoading(true)

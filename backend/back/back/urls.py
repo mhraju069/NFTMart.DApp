@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/verify/', VerifySignatureView.as_view()),
     path('api/profile/', ProfileView.as_view()),
     path('api/profiledata/<str:address>/', FetchProfileView.as_view()),
+    path('api/updateprofile/<str:address>/', UpdateProfileView.as_view()),
 
 ]
 if settings.DEBUG:

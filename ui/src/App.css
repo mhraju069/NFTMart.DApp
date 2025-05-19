@@ -10,6 +10,7 @@
   --success: #4caf50;
   --warning: #ff9800;
   --danger: #f44336;
+  --transparent: #2a2a3a69;
 }
 
 * {
@@ -2112,3 +2113,5 @@ Profile Button */
   transform-origin: bottom right;
   transform: translateY(calc(var(--transform) * -1)) rotate(45deg);
 }
+
+
