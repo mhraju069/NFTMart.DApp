@@ -22,7 +22,7 @@ function App() {
   const [dashboardview, setDashboardview] = useState(false)
 
 
-  const { Connect, setLoading, wallet, addrs, loading, profile,access} = ConnectWallet()
+  const { Connect, setLoading, wallet, addrs, loading, profile, access } = ConnectWallet()
 
 
   useEffect(() => {
@@ -40,16 +40,16 @@ function App() {
 
 
   const homeView = () => {
-    if (!homeview) { setHomeview(true); setCreateview(false); setExploreview(false); setDashboardview(false)}
+    if (!homeview) { setHomeview(true); setCreateview(false); setExploreview(false); setDashboardview(false) }
   }
   const exploreView = () => {
     if (!exploreview) { setCreateview(false); setHomeview(false); setExploreview(true); setDashboardview(false) }
   }
   const createView = () => {
-    if (!createview) { setCreateview(true); setHomeview(false); setExploreview(false); setDashboardview(false)}
+    if (!createview) { setCreateview(true); setHomeview(false); setExploreview(false); setDashboardview(false) }
   }
-  const dashboardView=()=>{
-    if (!dashboardview) { setDashboardview(true); setCreateview(false); setHomeview(false); setExploreview(false)}
+  const dashboardView = () => {
+    if (!dashboardview) { setDashboardview(true); setCreateview(false); setHomeview(false); setExploreview(false) }
   }
 
   return (
@@ -85,9 +85,9 @@ function App() {
                 </div>
 
                 <section className="menu-container">
-                  <div className="menu-list">Name: {profile.name}</div>
-                  <div className="menu-list">Email: {profile.email} </div>
-                  <span onClick={dashboardView} className="menu-list" >Dashboard</span>
+                  <button className="menu-list"  type='button' onClick={dashboardView} >Dashboard</button>
+                  <button className="menu-list"  type='button' onClick={dashboardView} >Log Out</button>
+
                 </section>
               </label>
 
@@ -104,7 +104,7 @@ function App() {
       {exploreview && < Categorywise contract={contract} setLoading={setLoading} wallet={wallet} />}
       {createview && <AddNft contract={contract} wallet={wallet} setLoading={setLoading} profile={profile} />}
       {loading && <Loader />}
-      { dashboardview && < NFTDashboard profile={profile} addrs={addrs} wallet={wallet} access={access} />}  
+      {dashboardview && < NFTDashboard profile={profile} addrs={addrs} wallet={wallet} access={access} />}
 
     </>
   );

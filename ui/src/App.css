@@ -376,7 +376,7 @@ nav ul li Button:hover::after {
   height: 30px;
   border-radius: 50%;
   overflow: hidden;
-  object-fit: cover ;
+  object-fit: cover;
 }
 
 .creator-avatar img {
@@ -2001,16 +2001,16 @@ Profile Button */
 }
 
 .menu-container {
-  background-color: white;
-  color: darkviolet;
+  background-color: var(--gray);
+  backdrop-filter: blur(10px);
   border-radius: 10px;
   position: absolute;
   width: 150px;
   left: -100px;
   top: 130%;
   overflow: hidden;
-  clip-path: inset(0% 10% 100% 75% round 10px); 
-
+  clip-path: inset(0% 10% 100% 75% round 10px);
+  border: 1px solid rgba(255, 255, 255, 0.205);
   transition: all 0.4s;
 }
 
@@ -2023,6 +2023,16 @@ Profile Button */
   position: relative;
   transform: translateY(30px);
   opacity: 0;
+  padding: 10px 15px;
+  outline: "none";
+  border: "none";
+  color: var(--light);
+  font-size: 15px;
+  font-weight: 500;
+  background-color: transparent;
+  outline: none;
+  border: none  ;
+  cursor: pointer;
 }
 
 .menu-list::after {
@@ -2032,36 +2042,36 @@ Profile Button */
   left: 50%;
   transform: translateX(-50%);
   height: 1px;
-  background-color: rgba(0, 0, 0, 0.3);
-  width: 95%;
+  background-color: rgba(255, 255, 255, 0.3);
+  width: 200%;
 }
 
 .menu-list:hover {
-  background-color: rgb(223, 223, 223);
+  transform: translateY(10px);
 }
 
 .event-wrapper-inp:checked~.menu-container {
   clip-path: inset(0% 0% 0% 0% round 10px);
 }
 
-.event-wrapper-inp:checked ~ .menu-container .menu-list {
+.event-wrapper-inp:checked~.menu-container .menu-list {
   transform: translateY(0);
   opacity: 1;
 }
 
-.event-wrapper-inp:checked ~ .menu-container .menu-list:nth-child(1) {
+.event-wrapper-inp:checked~.menu-container .menu-list:nth-child(1) {
   transition:
     transform 0.4s var(--delay),
     opacity 0.4s var(--delay);
 }
 
-.event-wrapper-inp:checked ~ .menu-container .menu-list:nth-child(2) {
+.event-wrapper-inp:checked~.menu-container .menu-list:nth-child(2) {
   transition:
     transform 0.4s calc(var(--delay) + (var(--trdelay) * 1)),
     opacity 0.4s calc(var(--delay) + (var(--trdelay) * 1));
 }
 
-.event-wrapper-inp:checked ~ .menu-container .menu-list:nth-child(3) {
+.event-wrapper-inp:checked~.menu-container .menu-list:nth-child(3) {
   transition:
     transform 0.4s calc(var(--delay) + (var(--trdelay) * 2)),
     opacity 0.4s calc(var(--delay) + (var(--trdelay) * 2));
@@ -2091,12 +2101,13 @@ Profile Button */
   transition: all 0.4s;
   position: relative;
 }
-.bar .profile_picture{
+
+.bar .profile_picture {
   object-fit: cover;
   border-radius: 50%;
   height: 40px;
   width: 40px;
-  
+
 }
 
 .event-wrapper-inp:not(:checked)~.bar>.top {
@@ -2113,5 +2124,3 @@ Profile Button */
   transform-origin: bottom right;
   transform: translateY(calc(var(--transform) * -1)) rotate(45deg);
 }
-
-
