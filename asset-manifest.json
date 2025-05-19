@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/NFTMart.DApp/static/css/main.f9fa6725.css",
-    "main.js": "/NFTMart.DApp/static/js/main.9f6d6fc5.js",
+    "main.css": "/NFTMart.DApp/static/css/main.e179b07b.css",
+    "main.js": "/NFTMart.DApp/static/js/main.eed00326.js",
     "static/js/453.63c4db86.chunk.js": "/NFTMart.DApp/static/js/453.63c4db86.chunk.js",
     "index.html": "/NFTMart.DApp/index.html",
-    "main.f9fa6725.css.map": "/NFTMart.DApp/static/css/main.f9fa6725.css.map",
-    "main.9f6d6fc5.js.map": "/NFTMart.DApp/static/js/main.9f6d6fc5.js.map",
+    "main.e179b07b.css.map": "/NFTMart.DApp/static/css/main.e179b07b.css.map",
+    "main.eed00326.js.map": "/NFTMart.DApp/static/js/main.eed00326.js.map",
     "453.63c4db86.chunk.js.map": "/NFTMart.DApp/static/js/453.63c4db86.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f9fa6725.css",
-    "static/js/main.9f6d6fc5.js"
+    "static/css/main.e179b07b.css",
+    "static/js/main.eed00326.js"
   ]
 }
