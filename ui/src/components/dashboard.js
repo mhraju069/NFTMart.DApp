@@ -1,246 +1,454 @@
-import React, { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faUser,
-    faImage,
-    faShoppingBag,
-    faCog,
-    faWallet,
-    faSignOutAlt,
-    faGem
+  faUser,
+  faImage,
+  faShoppingBag,
+  faCog,
+  faWallet,
+  faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import axios from "axios";
 import Alert from "./alert";
-
-
-const NFTDashboard = ({ profile, addrs, wallet ,access }) => {
-    const inputRef = useRef(null);
-    const [image, setImage] = useState(null);
-    const [activeTab, setActiveTab] = useState('profile');
-    const [name, setName] = useState()
-    const [bio, setBio] = useState()
-    const [email, setEmail] = useState()
+import MediaRenderer from "./mediaRender";
+import { formatEther } from "ethers";
 
 
 
-    useEffect(() => {
-        if (profile?.image) {
-            setImage(`http://127.0.0.1:8000${profile.image}`);
+
+const NFTDashboard = ({ profile, addrs, wallet, access, contract, setLoading }) => {
+  const inputRef = useRef(null);
+  const [image, setImage] = useState(null);
+  const [activeTab, setActiveTab] = useState('my-nfts');
+  const [name, setName] = useState()
+  const [bio, setBio] = useState()
+  const [email, setEmail] = useState()
+  const [sellNFT, setSellNFT] = useState()
+  const [buyNFT, setBuyNFT] = useState()
+  const [balance, setBalance] = useState(0)
+  const [contractBalance, setContractBalance] = useState(false)
+
+
+
+  useEffect(() => {
+    if (profile?.image) {
+      setImage(`http://127.0.0.1:8000${profile.image}`);
+    }
+    if (profile?.name) {
+      setName(profile.name);
+    }
+    if (profile?.bio) {
+      setBio(profile.bio);
+    }
+    if (profile?.email) {
+      setEmail(profile.email);
+    }
+
+  }, [profile]);
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('bio', bio);
+    formData.append('email', email);
+    formData.append('image', inputRef.current.files[0]);
+    try {
+      const response = await axios.post(`http://127.0.0.1:8000/api/updateprofile/${wallet}/`, formData, {
+        headers: {
+          Authorization: `Bearer ${access}`,
+          'Content-Type': 'multipart/form-data',
         }
-        if (profile?.name) {
-            setName(profile.name);
-        }
-        if (profile?.bio) {
-            setBio(profile.bio);
-        }
-        if (profile?.email) {
-            setEmail(profile.email);
-        }
-
-    }, [profile]);
+      });
+      Alert('Profile updated successfully!', 'success');
+    } catch (error) {
+      console.error(error);
+      Alert('Something went wrong, please try again', 'error');
+    }
+  };
 
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setImage(imageUrl);
+    }
+  };
 
-        const formData = new FormData();
-        formData.append('name', name);
-        formData.append('bio', bio);
-        formData.append('email', email);
-        formData.append('image', inputRef.current.files[0]);
-        try {
-            const response = await axios.post(`http://127.0.0.1:8000/api/updateprofile/${wallet}/`, formData, {
-                headers: {
-                     Authorization: `Bearer ${access}`,
-                    'Content-Type': 'multipart/form-data',
-                }
-            });
-            Alert('Profile updated successfully!', 'success');
-        } catch (error) {
-            console.error(error);
-            Alert('Something went wrong, please try again', 'error');
+  const handleOverlayClick = () => {
+    inputRef.current.click();
+  };
+
+  const DeleteItem = async (id) => {
+  Alert("Delete this NFT?", "delete", async () => {
+    try {
+      const tx = await contract.deleteItem(id);
+      await tx.wait();
+      Alert("Item removed successfully", "success");
+    } catch (e) {
+      Alert("Something went wrong", "error");
+      console.error(e);
+    }
+  });
+};
+
+
+  useEffect(() => {
+    const Fetchdata = async () => {
+      try {
+        setLoading(true)
+        const sellNfts = []
+        const buyNfts = []
+        const [sellList, buyList] = await contract.MyNfts();
+        const balance = await contract.getUserBalance(wallet); setBalance(balance);
+        const owner = await contract.owner()
+        if (await owner.toLowerCase() == wallet.toLowerCase()) { const contractbalance = await contract.getContractBalance(); setContractBalance(contractbalance); }
+        const user = await axios.get(`http://127.0.0.1:8000/api/profiledata/${wallet}/`)
+        for (let i = 0; i < sellList.length; i++) {
+          const item = sellList[i]
+          sellNfts.push({
+            owner: item.owner,
+            name: item.name,
+            image: item.image,
+            price: item.price,
+            tokenId: item.tokenId,
+            category: item.category,
+            profileName: user.data.name,
+            profileImage: user.data.image ? `http://127.0.0.1:8000${user.data.image}` : null
+          });
         }
+        for (let i = 0; i < buyList.length; i++) {
+          const item = buyList[i]
+          buyNfts.push({
+            owner: item.owner,
+            name: item.name,
+            image: item.image,
+            price: item.price,
+            tokenId: item.tokenId,
+            category: item.category,
+            profileName: user.data.name,
+            profileImage: user.data.image ? `http://127.0.0.1:8000${user.data.image}` : null
+          });
+        }
+        setSellNFT(sellNfts);
+        setBuyNFT(buyNfts)
+        console.log('sellNfts', sellNfts);
+        console.log('buyNfts', buyNfts);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false)
+      }
     };
+    if (contract) Fetchdata();
+  }, [])
 
 
 
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            setImage(imageUrl);
-        }
-    };
-    const handleOverlayClick = () => {
-        inputRef.current.click();
-    };
+  return (
+    <div className="dashboard-container">
 
 
-    return (
-        <div className="dashboard-container">
+      {/* Sidebar */}
+      <div className="sidebar">
+
+        <div className="sidebar-menu">
 
 
-            {/* Sidebar */}
-            <div className="sidebar">
+          <div
+            className={`menu-item ${activeTab === 'my-nfts' ? 'active' : ''}`}
+            onClick={() => setActiveTab('my-nfts')}
+          >
+            <FontAwesomeIcon icon={faImage} className="menu-icon" />
+            <span>All NFTs</span>
+          </div>
 
-                <div className="sidebar-menu">
-                    <div
-                        className={`menu-item ${activeTab === 'profile' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('profile')}
-                    >
-                        <FontAwesomeIcon icon={faUser} className="menu-icon" />
-                        <span>Edit Profile</span>
-                    </div>
+          <div
+            className={`menu-item ${activeTab === 'purchased' ? 'active' : ''}`}
+            onClick={() => setActiveTab('purchased')}
+          >
+            <FontAwesomeIcon icon={faShoppingBag} className="menu-icon" />
+            <span>Purchased NFTs</span>
+          </div>
 
-                    <div
-                        className={`menu-item ${activeTab === 'my-nfts' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('my-nfts')}
-                    >
-                        <FontAwesomeIcon icon={faImage} className="menu-icon" />
-                        <span>My NFTs</span>
-                    </div>
+          <div
+            className={`menu-item ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            <FontAwesomeIcon icon={faUser} className="menu-icon" />
+            <span>Edit Profile</span>
+          </div>
 
-                    <div
-                        className={`menu-item ${activeTab === 'purchased' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('purchased')}
-                    >
-                        <FontAwesomeIcon icon={faShoppingBag} className="menu-icon" />
-                        <span>Purchased NFTs</span>
-                    </div>
-
-                    <div
-                        className={`menu-item ${activeTab === 'settings' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('settings')}
-                    >
-                        <FontAwesomeIcon icon={faCog} className="menu-icon" />
-                        <span>Settings</span>
-                    </div>
-
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faWallet} className="menu-icon" />
-                        <span>Wallet</span>
-                    </div>
-                </div>
-
-                <div className="sidebar-footer">
-                    <div className="menu-item">
-                        <FontAwesomeIcon icon={faSignOutAlt} className="menu-icon" />
-                        <span>Logout</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="main-content">
-                {activeTab === 'profile' && (
-                    <div className="profile-section">
-                        <h2 className="section-title">Edit Profile</h2>
-
-                        <div className="profile-card">
-                            <div className="profile-header">
-                                <div className="avatar-container">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        ref={inputRef}
-                                        style={{ display: "none" }}
-                                        onChange={handleImageChange}
-                                    />
-
-                                    <div className="avatar-overlay" onClick={handleOverlayClick}>
-                                        {image ? (
-                                            <>
-                                                <img src={image} alt="Selected" className="profile-avatar" />
-                                                <span>Change</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <i className="fas fa-user-circle" style={{ fontSize: "7rem", color: "#2a2a3a" }} />
-                                                <span>Change</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="profile-wallet">{addrs}</p>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="profile-form">
-                                <div className="form-group">
-                                    <label htmlFor="name">Display Name</label>
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        name="name"
-                                        value={name}
-                                        onChange={e => setName(e.target.value)}
-                                        placeholder="Enter your name"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="email">Email Address</label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        name="email"
-                                        value={email}
-                                        onChange={e => setEmail(e.target.value)}
-                                        placeholder="Enter your email"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="description">Bio</label>
-                                    <textarea
-                                        id="description"
-                                        name="description"
-                                        value={bio}
-                                        onChange={e => setBio(e.target.value)}
-                                        placeholder="Tell us about yourself"
-
-                                        cols="50"
-
-                                    />
-                                </div>
-
-                                <button type="submit" className="save-btn">
-                                    Save Changes
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === 'my-nfts' && (
-                    <div className="nfts-section">
-                        <h2 className="section-title">My NFTs</h2>
-                        <div className="nfts-grid">
-                            {/* NFT items would be mapped here */}
-                            <p className="coming-soon">Your NFT collection will appear here</p>
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === 'purchased' && (
-                    <div className="purchased-section">
-                        <h2 className="section-title">Purchased NFTs</h2>
-                        <div className="nfts-grid">
-                            {/* Purchased NFT items would be mapped here */}
-                            <p className="coming-soon">Your purchased NFTs will appear here</p>
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === 'settings' && (
-                    <div className="settings-section">
-                        <h2 className="section-title">Settings</h2>
-                        <p className="coming-soon">Settings panel coming soon</p>
-                    </div>
-                )}
-            </div>
+          <div className={`menu-item ${activeTab === 'wallet' ? 'active' : ''}`}
+            onClick={() => setActiveTab('wallet')}>
+            <FontAwesomeIcon icon={faWallet} className="menu-icon" />
+            <span>Wallet</span>
+          </div>
         </div>
-    );
+
+        <div className="sidebar-footer">
+          <div className="menu-item">
+            <FontAwesomeIcon icon={faSignOutAlt} className="menu-icon" />
+            <span>Logout</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="main-content">
+
+
+        {activeTab === 'my-nfts' && (
+          <div className="nfts-section">
+            <section className="nft-section">
+              <div className="container">
+                <div className="section-header">
+                  <h2 className="section-title">Digital Art NFTs</h2>
+                  <div className="sort-options">
+                    <span className="sort-label">Sort by:</span>
+                    <select className="sort-select">
+                      <option value="newest">Newest</option>
+                      <option value="price-low">Price: Low to High</option>
+                      <option value="price-high">Price: High to Low</option>
+                      <option value="most-viewed">Most Viewed</option>
+                    </select>
+                  </div>
+                </div>
+                {/* NFT Cards */}
+                {sellNFT?.length !== 0 ?
+                  <div className="nft-grid">
+                    {sellNFT?.map((item, i) => (
+                      <div className="nft-card" key={i}>
+                        <div className="nft-image">
+                          <MediaRenderer item={item} file={item.image} />
+                          <div className="nft-badge">New</div>
+                        </div>
+                        <div className="nft-info">
+                          <h3 className="nft-title">{item.name}</h3>
+                          <div className="nft-creator">
+                            <img src={item.profileImage} alt="Creator" className="creator-avatar" />
+                            <span>{item.profileName} ({item.owner?.toString().slice(0, 5) + '....' + item.owner?.toString().slice(-4)})</span>
+                          </div>
+                          <div className="nft-details">
+                            <div className="nft-price">
+                              <span className="price-label">Price </span>
+                              <span className="price-value"><i className="fab fa-ethereum"></i>{formatEther(item.price)} ETH</span>
+                            </div>
+                            <div className="nft-actions">
+                              <button className="action-btn dlt" onClick={() => DeleteItem(item.tokenId)}><i className="fas fa-trash-alt"></i></button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  :
+                  <h1>No NFT Found</h1>
+                }
+                {/* Pagination */}
+                {/* <div className="pagination">
+                  <button
+                    className={`page-btn ${currentPage === 1 ? 'disabled' : ''}`}
+                    onClick={handlePrev}
+                  >
+                    <i className="fas fa-chevron-left"></i>
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i}
+                      className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                      onClick={() => handlePageClick(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    className={`page-btn ${currentPage === totalPages ? 'disabled' : ''}`}
+                    onClick={handleNext}
+                  >
+                    <i className="fas fa-chevron-right"></i>
+                  </button>
+                </div> */}
+
+              </div>
+            </section >
+          </div>
+        )}
+
+        {activeTab === 'purchased' && (
+          <div className="nfts-section">
+            <section className="nft-section">
+              <div className="container">
+                <div className="section-header">
+                  <h2 className="section-title">Digital Art NFTs</h2>
+                  <div className="sort-options">
+                    <span className="sort-label">Sort by:</span>
+                    <select className="sort-select">
+                      <option value="newest">Newest</option>
+                      <option value="price-low">Price: Low to High</option>
+                      <option value="price-high">Price: High to Low</option>
+                      <option value="most-viewed">Most Viewed</option>
+                    </select>
+                  </div>
+                </div>
+                {/* NFT Cards */}
+                {buyNFT?.length !== 0 ?
+                  <div className="nft-grid">
+                    {buyNFT?.map((item, i) => (
+                      <div className="nft-card" key={i}>
+                        <div className="nft-image">
+                          <MediaRenderer item={item} file={item.image} />
+                          <div className="nft-badge">New</div>
+                        </div>
+                        <div className="nft-info">
+                          <h3 className="nft-title">{item.name}</h3>
+                          <div className="nft-creator">
+                            <img src={item.profileImage} alt="Creator" className="creator-avatar" />
+                            <span>{item.profileName} ({item.owner?.toString().slice(0, 5) + '....' + item.owner?.toString().slice(-4)})</span>
+                          </div>
+                          <div className="nft-details">
+                            <div className="nft-price">
+                              <span className="price-label">Price </span>
+                              <span className="price-value"><i className="fab fa-ethereum"></i>{formatEther(item.price)} ETH</span>
+                            </div>
+                            {/* <div className="nft-actions">
+                              <button className="action-btn"><i className="far fa-heart"></i></button>
+                              <button className="action-btn" onClick={() => BuyItem(item.tokenId, item.price)}><i className="fas fa-shopping-cart"></i></button>
+                            </div> */}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  :
+                  <h1>No NFT Found</h1>
+                }
+                {/* Pagination */}
+                {/* <div className="pagination">
+                  <button
+                    className={`page-btn ${currentPage === 1 ? 'disabled' : ''}`}
+                    onClick={handlePrev}
+                  >
+                    <i className="fas fa-chevron-left"></i>
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i}
+                      className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                      onClick={() => handlePageClick(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    className={`page-btn ${currentPage === totalPages ? 'disabled' : ''}`}
+                    onClick={handleNext}
+                  >
+                    <i className="fas fa-chevron-right"></i>
+                  </button>
+                </div> */}
+
+              </div>
+            </section >
+          </div>
+        )}
+
+        {activeTab === 'profile' && (
+          <div className="profile-section">
+            <h2 className="section-title">Edit Profile</h2>
+
+            <div className="profile-card">
+              <div className="profile-header">
+                <div className="avatar-container">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={inputRef}
+                    style={{ display: "none" }}
+                    onChange={handleImageChange}
+                  />
+
+                  <div className="avatar-overlay" onClick={handleOverlayClick}>
+                    {image ? (
+                      <>
+                        <img src={image} alt="Selected" className="profile-avatar" />
+                        <span>Change</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-user-circle" style={{ fontSize: "7rem", color: "#2a2a3a" }} />
+                        <span>Change</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <p className="profile-wallet">{addrs}</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="profile-form">
+                <div className="form-group">
+                  <label htmlFor="name">Display Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="Enter your name"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="email">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="description">Bio</label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    value={bio}
+                    onChange={e => setBio(e.target.value)}
+                    placeholder="Tell us about yourself"
+
+                    cols="50"
+
+                  />
+                </div>
+
+                <button type="submit" className="save-btn">
+                  Save Changes
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'wallet' && (
+          <div className="settings-section">
+            <h2 className="section-title">Wallet</h2>
+            {contractBalance && <p className="coming-soon">Your Contract balance : {formatEther(contractBalance.toString())} ETH</p>}
+            <p className="coming-soon">Your Wallet balance : {formatEther(balance.toString())} ETH</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 // CSS Styles

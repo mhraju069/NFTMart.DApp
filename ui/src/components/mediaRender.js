@@ -1,5 +1,3 @@
-import React, { useEffect, useState } from 'react';
-
 const MediaRenderer = ({ item,file }) => {
 
   if (!item || !file) {

@@ -15,14 +15,14 @@ const contractAddress = '0x43803687E0dA670D751bb7D6B1CA96e18FD5A527'
 
 
 function App() {
-  const [contract, setContract] = useState(null)
+  const [contracts, setContracts] = useState(null)
   const [createview, setCreateview] = useState(false)
   const [homeview, setHomeview] = useState(true)
   const [exploreview, setExploreview] = useState(false)
   const [dashboardview, setDashboardview] = useState(false)
 
 
-  const { Connect, setLoading, wallet, addrs, loading, profile, access } = ConnectWallet()
+  const { Connect, setLoading, wallet, addrs, loading, profile, access,contract } = ConnectWallet()
 
 
   useEffect(() => {
@@ -30,7 +30,7 @@ function App() {
       try {
         const provider = new JsonRpcProvider("https://eth-sepolia.g.alchemy.com/v2/TmhREneR_zfjyZ4i88_rUGBMztgR9UP0")
         const contracts = new Contract(contractAddress, ABI.abi, provider)
-        setContract(contracts)
+        setContracts(contracts)
       } catch (err) {
         console.log(err.message)
       }
@@ -100,11 +100,11 @@ function App() {
       </header>
 
 
-      {homeview && <Home contract={contract} wallet={wallet} exploreView={exploreView} createView={createView} setLoading={setLoading} />}
-      {exploreview && < Categorywise contract={contract} setLoading={setLoading} wallet={wallet} />}
+      {homeview && <Home contract={contracts} wallet={wallet} exploreView={exploreView} createView={createView} setLoading={setLoading} />}
+      {exploreview && < Categorywise contract={contracts} setLoading={setLoading} wallet={wallet} />}
       {createview && <AddNft contract={contract} wallet={wallet} setLoading={setLoading} profile={profile} />}
       {loading && <Loader />}
-      {dashboardview && < NFTDashboard profile={profile} addrs={addrs} wallet={wallet} access={access} />}
+      {dashboardview && < NFTDashboard profile={profile} addrs={addrs} wallet={wallet} access={access} contract={contract} setLoading={setLoading} />}
 
     </>
   );

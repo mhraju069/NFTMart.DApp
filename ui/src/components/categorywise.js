@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { parseEther, formatEther } from 'ethers';
+import { formatEther } from 'ethers';
 import MediaRenderer from './mediaRender';
 import Alert from './alert';
 import axios from 'axios';

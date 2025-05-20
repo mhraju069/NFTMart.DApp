@@ -10,6 +10,11 @@
       "address": "0x1Be54670561aaD32f0348a3dAddea7Ed8C955642",
       "txHash": "0x6e40ec1040fa1f14d33342d1c9471e17815ebc8d9d562adadd39e7aa699f731c",
       "kind": "uups"
+    },
+    {
+      "address": "0x209C44Ed38D9a4209910b18c86Aab9a472A40083",
+      "txHash": "0x0e5a7b8848c9c13b453452fa5ff525c61765fa39dab8fcf8b73e17e504629561",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -442,6 +447,199 @@
     "3b8abbf8a6f5ad8e99d7c21f5437ab0bf34b991d70b09608948cfdc6e04725e5": {
       "address": "0x54891245a3946Db6d62d6940B10c7f0F6Ce471F4",
       "txHash": "0x4bce435edab5cb68a17517635e2df11b1569f6a0812b3720545e3901590583eb",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "myNft",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(MyNFT)8201",
+            "contract": "NFTMart",
+            "src": "contracts\\NFTMart.sol:37"
+          },
+          {
+            "label": "nftList",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_struct(NFT)8235_storage)dyn_storage",
+            "contract": "NFTMart",
+            "src": "contracts\\NFTMart.sol:56"
+          },
+          {
+            "label": "myNftCount",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "NFTMart",
+            "src": "contracts\\NFTMart.sol:58"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_struct(NFT)8235_storage)dyn_storage": {
+            "label": "struct NFTMart.NFT[]",
+            "numberOfBytes": "32"
+          },
+          "t_contract(MyNFT)8201": {
+            "label": "contract MyNFT",
+            "numberOfBytes": "20"
+          },
+          "t_enum(Category)8217": {
+            "label": "enum NFTMart.Category",
+            "members": [
+              "ART",
+              "IMAGE",
+              "PHOTOGRAPHY",
+              "VIDEO",
+              "GAMES",
+              "OTHERS"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(NFT)8235_storage": {
+            "label": "struct NFTMart.NFT",
+            "members": [
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "price",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "image",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "details",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "category",
+                "type": "t_enum(Category)8217",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "owner",
+                "type": "t_address",
+                "offset": 1,
+                "slot": "4"
+              },
+              {
+                "label": "isSold",
+                "type": "t_bool",
+                "offset": 21,
+                "slot": "4"
+              },
+              {
+                "label": "tokenId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              }
+            ],
+            "numberOfBytes": "192"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "f8c3773764f7efbaa0e247d19265f8d98d10b6424e94994fe33e3102c8bf06bb": {
+      "address": "0x0c49c77423E4e4D4F5e84930F038204689b6061b",
+      "txHash": "0xefe7714b744f56dec6329222976620c5f8f0414daee54d0de860c8e3b493cf95",
       "layout": {
         "solcVersion": "0.8.28",
         "storage": [

@@ -11,6 +11,7 @@ export default function ConnectWallet() {
     const [loading, setLoading] = useState(false)
     const [profile, setProfile] = useState()
     const [access,setAccess] = useState()
+    const [contract, setContract] = useState()
 
     const Connect = async () => {
         try {
@@ -19,6 +20,7 @@ export default function ConnectWallet() {
             const provider = new BrowserProvider(window.ethereum)
             const signer = await provider.getSigner()
             const account = await signer.getAddress()
+            const contracts =new     Contract(contractAddress, ABI.abi, signer)
 
             const nonceRes = await axios.post("http://localhost:8000/api/nonce/", {
                 wallet: account
@@ -45,10 +47,10 @@ export default function ConnectWallet() {
                     Authorization: `Bearer ${access}`
                 }
             });
-            setProfile(profileRes.data);
-            console.log(profileRes.data);
             Alert("Login Successful", "success")
+            setProfile(profileRes.data);
             setWallet(account)
+            setContract(contracts)
             setAddrs(account.toString().slice(0, 6) + '....' + account.toString().slice(-5))
         } catch (err) {
             Alert("Wallet Connection failed", "error")
@@ -57,5 +59,5 @@ export default function ConnectWallet() {
             setLoading(false)
         }
     }
-    return { Connect, setLoading, wallet, addrs, loading ,profile,access}
+    return { Connect, setLoading, wallet, addrs, loading ,profile,access,contract}
 }
