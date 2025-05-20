@@ -31,7 +31,7 @@
 ## 📁 Project Structure
 
 NFTMart.DApp/
-│
+│  ├──backend(Django)
 ├── contracts/ # Smart contracts (MyNFT, NFTMart)
 ├── scripts/ # Deployment scripts
 ├── frontend/ # React + Ethers frontend
@@ -40,10 +40,6 @@ NFTMart.DApp/
 │ └── utils/
 ├── hardhat.config.js # Hardhat configuration
 └── README.md # This file
-
-yaml
-Copy
-Edit
 
 ---
 
@@ -90,9 +86,7 @@ Update contract addresses in utils/config.js after deployment.
 🧪 Testing
 To run Hardhat tests:
 
-bash
-Copy
-Edit
+
 npx hardhat test
 🛣️ Roadmap
  NFT Minting
@@ -119,10 +113,6 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 
 🤝 Contributing
 Pull requests and issues are welcome! Feel free to fork this project and build your own version.
-
-yaml
-Copy
-Edit
 
 ---
 
